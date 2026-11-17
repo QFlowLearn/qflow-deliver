@@ -1,3 +1,4 @@
+import { parse, type ParseError } from "jsonc-parser";
 import JSZip from "jszip";
 import { applyD1Migrations, createExecutionContext, waitOnExecutionContext } from "cloudflare:test";
 import { env, exports as workerExports } from "cloudflare:workers";
@@ -38,30 +39,17 @@ function readRuntimeBindings(): {
   };
 }
 
-function readWranglerConfig(): {
-  observability?: {
-    enabled?: boolean;
-    logs?: {
-      enabled?: boolean;
-      invocation_logs?: boolean;
-    };
+function readWranglerConfig() {
+  const errors: ParseError[] = [];
+  const config: unknown = parse(wranglerConfigText, errors, { allowTrailingComma: true });
+  if (errors.length || !config || typeof config !== "object" || Array.isArray(config)) {
+    throw new Error("Invalid runtime Worker configuration.");
+  }
+  return {
+    observability: Reflect.get(config, "observability"),
+    analytics_engine_datasets: Reflect.get(config, "analytics_engine_datasets"),
+    queues: Reflect.get(config, "queues"),
   };
-  analytics_engine_datasets?: Array<{
-    binding: string;
-    dataset?: string;
-  }>;
-  queues?: {
-    producers?: Array<{
-      binding: string;
-      queue: string;
-    }>;
-    consumers?: Array<{
-      queue: string;
-      dead_letter_queue?: string;
-    }>;
-  };
-} {
-  return JSON.parse(wranglerConfigText);
 }
 
 function getBaseEnv(): {

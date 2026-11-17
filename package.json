@@ -30,6 +30,7 @@
     "@playwright/test": "^1.60.0",
     "@types/node": "^25.9.3",
     "axe-core": "4.11.4",
+    "jsonc-parser": "3.3.1",
     "jszip": "^3.10.1",
     "lefthook": "2.1.9",
     "oxfmt": "0.54.0",
