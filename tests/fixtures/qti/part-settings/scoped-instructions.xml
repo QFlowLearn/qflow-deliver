@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<qti-assessment-test xmlns="http://www.imsglobal.org/xsd/imsqtiasi_v3p0" identifier="scoped-instructions" title="Scoped instructions">
+  <qti-rubric-block view="candidate" use="instructions"><qti-content-body><p>Answer both questions.</p></qti-content-body></qti-rubric-block>
+  <qti-test-part identifier="part-instructions" title="Part 1" navigation-mode="linear" submission-mode="simultaneous">
+    <qti-time-limits min-time="60" max-time="300"/>
+    <qti-rubric-block view="candidate" use="instructions"><qti-content-body><p>Read every question before submitting.</p><img src="assets/map.svg" alt="Reference map"/></qti-content-body></qti-rubric-block>
+    <qti-rubric-block view="scorer" use="instructions"><qti-content-body><p>Private scorer key.</p></qti-content-body></qti-rubric-block>
+    <qti-assessment-section identifier="first-section" title="First section" visible="true">
+      <qti-rubric-block view="candidate" use="instructions"><qti-content-body><p>Use the map for the first question.</p></qti-content-body></qti-rubric-block>
+      <qti-assessment-item-ref identifier="first-ref" href="items/item-b35efecb-927b-46d4-a4e8-21950c2e44e0-r1.xml"/>
+    </qti-assessment-section>
+    <qti-assessment-section identifier="second-section" title="Second section" visible="true">
+      <qti-rubric-block view="candidate" use="instructions"><qti-content-body><p>Explain the second answer.</p></qti-content-body></qti-rubric-block>
+      <qti-assessment-item-ref identifier="second-ref" href="items/item-83eb5274-d3d0-4c39-b559-534205a21b2c-r1.xml"/>
+    </qti-assessment-section>
+  </qti-test-part>
+</qti-assessment-test>

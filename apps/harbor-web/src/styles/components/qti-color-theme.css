@@ -1,0 +1,255 @@
+/* Shared QTI color-theme tokens and presentation rules for session shell + renderer canvas. */
+
+:is(.renderer-canvas, .session-page).qti3-player-color-default {
+  --qti-theme-foreground: #111827;
+  --qti-theme-background: #ffffff;
+  --qti-theme-focus: #005fcc;
+}
+
+:is(.renderer-canvas, .session-page).qti3-player-color-defaultreverse {
+  --qti-theme-foreground: #ffffff;
+  --qti-theme-background: #111827;
+  --qti-theme-focus: #7dd3fc;
+}
+
+:is(.renderer-canvas, .session-page).qti3-player-color-blackwhite {
+  --qti-theme-foreground: #000000;
+  --qti-theme-background: #ffffff;
+  --qti-theme-focus: #005fcc;
+}
+
+:is(.renderer-canvas, .session-page).qti3-player-color-whiteblack {
+  --qti-theme-foreground: #ffffff;
+  --qti-theme-background: #000000;
+  --qti-theme-focus: #00ffff;
+}
+
+:is(.renderer-canvas, .session-page).qti3-player-color-blackrose {
+  --qti-theme-foreground: #000000;
+  --qti-theme-background: #ffe4f1;
+  --qti-theme-focus: #7a0042;
+}
+
+:is(.renderer-canvas, .session-page).qti3-player-color-roseblack {
+  --qti-theme-foreground: #ffe4f1;
+  --qti-theme-background: #000000;
+  --qti-theme-focus: #ff8bc3;
+}
+
+:is(.renderer-canvas, .session-page).qti3-player-color-dgraymgray {
+  --qti-theme-foreground: #1f2937;
+  --qti-theme-background: #d1d5db;
+  --qti-theme-focus: #003d8f;
+}
+
+:is(.renderer-canvas, .session-page).qti3-player-color-mgraydgray {
+  --qti-theme-foreground: #d1d5db;
+  --qti-theme-background: #1f2937;
+  --qti-theme-focus: #7dd3fc;
+}
+
+:is(.renderer-canvas, .session-page).qti3-player-color-yellowblue {
+  --qti-theme-foreground: #fff7ad;
+  --qti-theme-background: #002f6c;
+  --qti-theme-focus: #ffffff;
+}
+
+:is(.renderer-canvas, .session-page).qti3-player-color-blueyellow {
+  --qti-theme-foreground: #002f6c;
+  --qti-theme-background: #fff7ad;
+  --qti-theme-focus: #7a2500;
+}
+
+:is(.renderer-canvas, .session-page).qti3-player-color-blackcyan {
+  --qti-theme-foreground: #000000;
+  --qti-theme-background: #bff7ff;
+  --qti-theme-focus: #004c73;
+}
+
+:is(.renderer-canvas, .session-page).qti3-player-color-cyanblack {
+  --qti-theme-foreground: #bff7ff;
+  --qti-theme-background: #000000;
+  --qti-theme-focus: #ffffff;
+}
+
+:is(.renderer-canvas, .session-page).qti3-player-color-blackcream {
+  --qti-theme-foreground: #000000;
+  --qti-theme-background: #fff4d6;
+  --qti-theme-focus: #704400;
+}
+
+:is(.renderer-canvas, .session-page).qti3-player-color-creamblack {
+  --qti-theme-foreground: #fff4d6;
+  --qti-theme-background: #000000;
+  --qti-theme-focus: #ffffff;
+}
+
+.session-page[class*="qti3-player-color-"] {
+  --qflow-surface: var(--qti-theme-background);
+  --qflow-surface-container-lowest: var(--qti-theme-background);
+  --qflow-surface-container-low: color-mix(
+    in srgb,
+    var(--qti-theme-foreground) 7%,
+    var(--qti-theme-background)
+  );
+  --qflow-surface-container-high: color-mix(
+    in srgb,
+    var(--qti-theme-foreground) 16%,
+    var(--qti-theme-background)
+  );
+  --qflow-surface-container-highest: color-mix(
+    in srgb,
+    var(--qti-theme-foreground) 28%,
+    var(--qti-theme-background)
+  );
+  --qflow-primary: var(--qti-theme-foreground);
+  --qflow-wordmark: var(--qti-theme-foreground);
+  --qflow-wordmark-dark: var(--qti-theme-foreground);
+  --harbor-bg-session: var(--qti-theme-background);
+  --harbor-surface: var(--qti-theme-background);
+  --harbor-surface-soft: var(--qflow-surface-container-low);
+  --harbor-surface-muted: var(--qflow-surface-container-high);
+  --harbor-heading: var(--qti-theme-foreground);
+  --harbor-copy: var(--qti-theme-foreground);
+  --harbor-muted: var(--qti-theme-foreground);
+  --harbor-kicker: var(--qti-theme-foreground);
+  --harbor-line: var(--qflow-surface-container-highest);
+  --harbor-primary: var(--qti-theme-foreground);
+  --harbor-focus: var(--qti-theme-focus);
+  color: var(--qti-theme-foreground);
+  background: var(--qti-theme-background);
+}
+
+.session-page[class*="qti3-player-color-"] :is(button, .primary-action, .secondary-action) {
+  border-color: var(--qti-theme-foreground);
+  background: var(--qti-theme-background);
+  color: var(--qti-theme-foreground);
+}
+
+.session-page[class*="qti3-player-color-"] .primary-action:not(:disabled),
+.session-page[class*="qti3-player-color-"] [aria-current="step"] {
+  background: var(--qti-theme-foreground);
+  color: var(--qti-theme-background);
+}
+
+.session-page[class*="qti3-player-color-"] :focus-visible {
+  outline-color: var(--qti-theme-focus);
+}
+
+.session-page[class*="qti3-player-color-"] .session-utility-action {
+  border-color: transparent;
+  background: transparent;
+}
+
+.session-page[class*="qti3-player-color-"]
+  :is(.session-utility-action, .secondary-action):not(:disabled):hover {
+  background: var(--qflow-surface-container-low);
+}
+
+.renderer-canvas[class*="qti3-player-color-"] {
+  color: var(--qti-theme-foreground);
+  background: var(--qti-theme-background);
+}
+
+.renderer-canvas[class*="qti3-player-color-"] qti-assessment-item-player {
+  color: var(--qti-theme-foreground) !important;
+  background-color: var(--qti-theme-background) !important;
+  color-scheme: only light;
+}
+
+.renderer-canvas[class*="qti3-player-color-"] :is(.qti3-player, .qti3-item-body),
+.renderer-canvas[class*="qti3-player-color-"] :is(button, input, select, textarea) {
+  color: var(--qti-theme-foreground);
+  background-color: var(--qti-theme-background);
+  border-color: var(--qti-theme-foreground);
+  accent-color: var(--qti-theme-foreground);
+}
+
+.renderer-canvas[class*="qti3-player-color-"] .qti3-choice-option {
+  border-color: var(--qti-theme-foreground);
+  border-radius: var(--harbor-radius-md);
+  background: var(--qti-theme-background);
+  color: var(--qti-theme-foreground);
+}
+
+.renderer-canvas[class*="qti3-player-color-"] .qti3-choice-option:hover,
+.renderer-canvas[class*="qti3-player-color-"] .qti3-choice-option:has(input:focus-visible) {
+  background: color-mix(in srgb, var(--qti-theme-foreground) 16%, var(--qti-theme-background));
+}
+
+.renderer-canvas[class*="qti3-player-color-"] .qti3-choice-option[data-selected="true"],
+.renderer-canvas[class*="qti3-player-color-"] .qti3-choice-option[data-selected="true"]:hover,
+.renderer-canvas[class*="qti3-player-color-"]
+  .qti3-choice-option[data-selected="true"]:has(input:focus-visible) {
+  background: var(--qti-theme-foreground);
+  color: var(--qti-theme-background);
+}
+
+.renderer-canvas[class*="qti3-player-color-"] :is(a, .qti3-catalog-request) {
+  color: var(--qti-theme-foreground);
+  text-decoration-thickness: 0.125em;
+}
+
+.renderer-canvas[class*="qti3-player-color-"] :focus-visible {
+  outline: 3px solid var(--qti-theme-focus) !important;
+  outline-offset: 3px;
+}
+
+.renderer-canvas[class*="qti3-player-color-"]
+  .qti3-choice-option[data-selected="true"]:has(input:focus-visible)
+  input {
+  outline-color: var(--qti-theme-background) !important;
+}
+
+/* Default presentation is quieter; explicit contrast accommodations retain their palette. */
+.renderer-canvas.qti3-player-color-default .qti3-choice-option {
+  border-color: var(--harbor-line);
+}
+
+.renderer-canvas.qti3-player-color-default .qti3-choice-option[data-selected="true"],
+.renderer-canvas.qti3-player-color-default .qti3-choice-option[data-selected="true"]:hover,
+.renderer-canvas.qti3-player-color-default
+  .qti3-choice-option[data-selected="true"]:has(input:focus-visible) {
+  border-color: var(--qti-theme-focus);
+  background: var(--qflow-surface-container-low);
+  color: var(--qti-theme-foreground);
+}
+
+.renderer-canvas.qti3-player-color-default
+  .qti3-choice-option[data-selected="true"]:has(input:focus-visible)
+  input {
+  outline-color: var(--qti-theme-focus) !important;
+}
+
+.renderer-canvas[class*="qti3-player-color-"]
+  :is(.qti3-feedback, .qti3-validation-message, [role="alert"], [role="status"]) {
+  border: 2px solid currentColor;
+  background: var(--qti-theme-background);
+  color: var(--qti-theme-foreground);
+}
+
+@media (forced-colors: active) {
+  .session-page[class*="qti3-player-color-"],
+  .renderer-canvas[class*="qti3-player-color-"] {
+    --qti-theme-background: Canvas;
+    --qti-theme-foreground: CanvasText;
+    --qti-theme-focus: Highlight;
+    forced-color-adjust: auto;
+  }
+
+  .session-page[class*="qti3-player-color-"] [aria-current="step"],
+  .renderer-canvas[class*="qti3-player-color-"] .qti3-choice-option[data-selected="true"],
+  .renderer-canvas[class*="qti3-player-color-"] .qti3-choice-option[data-selected="true"]:hover,
+  .renderer-canvas[class*="qti3-player-color-"]
+    .qti3-choice-option[data-selected="true"]:has(input:focus-visible) {
+    background: Canvas;
+    color: CanvasText;
+    border-color: Highlight;
+  }
+
+  .renderer-canvas[class*="qti3-player-color-"]
+    .qti3-choice-option[data-selected="true"]:has(input:focus-visible)
+    input {
+    outline-color: Highlight !important;
+  }
+}

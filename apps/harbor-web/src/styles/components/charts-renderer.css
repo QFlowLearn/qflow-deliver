@@ -1,0 +1,105 @@
+/* components/HarborSvgBarChart.tsx */
+.svg-chart {
+  display: block;
+  width: 100%;
+  min-height: 190px;
+  color: var(--harbor-copy);
+  font-family: inherit;
+}
+
+.chart-grid line {
+  stroke: var(--harbor-line);
+  stroke-width: 1;
+}
+
+.chart-grid text,
+.axis-label {
+  fill: var(--harbor-copy);
+  font-size: 0.6875rem;
+}
+
+.axis-label--row {
+  fill: var(--harbor-heading);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.chart-marker line {
+  stroke: var(--harbor-kicker);
+  stroke-dasharray: 5 5;
+  stroke-width: 1.5;
+}
+
+.chart-marker text {
+  fill: var(--harbor-kicker);
+  font-size: 0.6875rem;
+  font-weight: 650;
+}
+
+.bar-track {
+  fill: var(--harbor-surface);
+}
+
+.bar-fill {
+  vector-effect: non-scaling-stroke;
+}
+
+.bar-value {
+  fill: var(--harbor-heading);
+  font-size: 0.6875rem;
+  font-weight: 650;
+}
+
+/* components/HarborSvgLineChart.tsx */
+.svg-chart {
+  display: block;
+  width: 100%;
+  min-height: 190px;
+  color: var(--harbor-copy);
+  font-family: inherit;
+}
+
+.chart-grid line {
+  stroke: var(--harbor-line);
+  stroke-width: 1;
+}
+
+.chart-grid text,
+.x-labels text {
+  fill: var(--harbor-copy);
+  font-size: 0.6875rem;
+}
+
+.chart-marker line {
+  stroke: var(--harbor-kicker);
+  stroke-dasharray: 5 5;
+  stroke-width: 1.5;
+}
+
+.chart-marker text {
+  fill: var(--harbor-kicker);
+  font-size: 0.6875rem;
+  font-weight: 650;
+}
+
+.trend-line {
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.trend-points circle {
+  stroke: var(--harbor-surface-soft);
+  stroke-width: 2;
+}
+
+/* Harbor qti3 renderer presentation classes */
+.renderer-canvas[data-single-column="true"] .qti3-player {
+  max-width: 44rem;
+  margin-inline: auto;
+}
+
+.renderer-canvas .harbor-rendered-media {
+  display: block;
+  inline-size: min(100%, 42rem);
+  margin-block: 1rem;
+}

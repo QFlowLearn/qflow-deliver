@@ -1,0 +1,12 @@
+{
+  "name": "@harbor/content-model",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@longsightgroup/qti3-player": "0.13.4"
+  }
+}

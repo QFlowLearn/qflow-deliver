@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<qti-assessment-item
+  xmlns="http://www.imsglobal.org/xsd/imsqtiasi_v3p0"
+  identifier="item-1"
+  title="Addition Warmup"
+  adaptive="false"
+  time-dependent="false">
+  <qti-item-body>
+    <qti-prompt>What is 2 + 2?</qti-prompt>
+    <div>
+      <img src="../assets/stimulus.svg" alt="Decorative Harbor stimulus"/>
+    </div>
+    <qti-choice-interaction response-identifier="RESPONSE" max-choices="1">
+      <qti-simple-choice identifier="A">3</qti-simple-choice>
+      <qti-simple-choice identifier="B">4</qti-simple-choice>
+      <qti-simple-choice identifier="C">5</qti-simple-choice>
+    </qti-choice-interaction>
+  </qti-item-body>
+</qti-assessment-item>

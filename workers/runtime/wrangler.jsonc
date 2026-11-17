@@ -1,0 +1,101 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "harbor-runtime",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-03-17",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true,
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true
+    }
+  },
+  "triggers": {
+    "crons": ["* * * * *"]
+  },
+  // Synthetic credentials for isolated local development and tests only.
+  // Never use this configuration with real learners or on a public service.
+  "vars": {
+    "BOOTSTRAP_SIGNING_SECRET": "harbor-bootstrap-test-secret",
+    "LTI_STATE_SECRET": "lti-state-local-secret",
+    "LTI_REGISTRATION_LINK_SECRET": "lti-registration-link-local-secret",
+    "QFLOW_HANDOFF_SECRET": "qflow-handoff-local-secret",
+    "QFLOW_RUNNER_KEY": "qflow-runner-local-secret",
+    "HARBOR_ADMIN_KEY": "harbor-admin-local-secret",
+    "HARBOR_PASSWORD_RESET_FROM_EMAIL": "no-reply@deliver.example.test",
+    "HARBOR_PUBLIC_ORIGIN": "https://harbor.local",
+    "ALLOW_UNSAFE_LOCAL_INTERNAL_API": "true",
+    "ALLOW_UNSAFE_LOCAL_INSTRUCTOR_AUTH": "true",
+    "ALLOW_UNSAFE_LOCAL_INSTITUTIONAL_AUTH": "true",
+    "LTI_TOOL_PRIVATE_KEY_JWK": "{\"kty\":\"RSA\",\"n\":\"hY5zZmWOto-xPpKT3bbZaZtKzCE3as9tA6IUEZhZA6-dVQBbUN0Sm0wir4xSY8gYshZiY5c3o76Ma2X6W_Ypi5otCtgSy080pL3LjqrG3xiXYlyF4rQMMBUD6WIoD8T-nGgY--IhqMN4XRRtxKArZQrM8UR9Oax0dFWl5KUnHldBsbod8cuLypiZ_uS1Ff0ggby1nralZSnuxAgjjvvPeE4B-HJqmQADGsO2QpISp-fbKMSRmT8zC8nTHOgN3x5TQ4A6tHRxyRjXl7dW7P09rcBwtkpKF72EWIAXR1X-spsGRX_KbAnaYIu8ZLW-aJuQs-CqDvCn009EviQcaX_oNw\",\"e\":\"AQAB\",\"d\":\"DrymuCxJoJRfcu-amFLmT5RenwKlSkhkF4wJWd2tKM52dlwpN1WFiZRPmX5K0w7PxsrYhXO4pH1QokMo6n_RmsFi6fjorf1p6im1LeNjOVfN0IE0Fs1WMPIIsfZuRDsw-xIze4u6uhQDkoXADPu9fhNAhPjRNo10difDO-ULWXoPi6I5GxuZoZctGA8ZU183Oh15D5tSWHyziMeNKRIchay-DXZ4eDQzVUD5HZi7UARBYSfxrpYXP2nlI1RF7-_X3kDRm8NR04WD7YF_OCI51PRDV5TZvIGbgnTdAOlR6A-He1aNqIZ6XnFNcWYU7u7ehKy3DOxKtVlYfPNgoVI1IQ\",\"p\":\"uWnPvyvwsvuH8xV5QKB-cXKNv_aD4gBwK3wHUhvzfKKELZ1Nu9mI6uhtxQd-aKHC7paWqPwp0DvM820zfi4zz8rkDnzwhkunrXVq9RYB5VDttaZ7FTtY5Wt8Xet0P4OhbGx8La_vODEckjFkLakIBjh4DPH5tnaz4xycvinr-dc\",\"q\":\"uGa46C_EMyB-URecXXMWDboJqKPZIWOXVbwLKEPjCxprwwmvfbY4OLtBM78FQmE1x0wXnKkOmE1-7xz0d8C2aSEudAY0aCQz2jdYw7NIPJWaPQp1AxMuXmNdDyACANaZeAt1dgDvkoX3EnUKAkcdZJWGrbqXevEFuxP3Wvd9eKE\",\"dp\":\"b2uFmzU1jOkYllxmJA8OTPBw_FWQhUSMI6WB5LbFSDWFRsAL0YH1BG0uYcOSFCB5OtUlrmDyY588F2CdHAt5uToMeCReieV22wb_gk56Tyql3o4v0t96GUvRTcNLdUuNutEqgm4CTHs-1x91OvcjylEu22CiFiMZELbF_oTEuLs\",\"dq\":\"OGGAC83_CTrYJGc5sgDsL0pAhcWDMAhJTzdtmeQX2V88r6eYdrFuQzpN10qCiyc50DPdzFKMWdjoBKgvvyW3IDG7CFKVV3oqOIBPrZZ1ccC0JhG6cTQ-KzHqVCOPOT5kMiYexfPHTF-ViZkrdELWI9jsEtZIVpi3Ddou-StOu8E\",\"qi\":\"jSeQUv6QDVjosaMYa6awBWhesn828ABpgNHrTo5R1lyEXUZfyoXXgJWuwxSH-xO5VJoqRWD0kbn4jgpxdmhcq_Yrb53KdUg7qDGkRvbXioYAVHQ6-ZCmk3kpQYIJQYG0se4w2Bl30Tzqdcs81xvFkJuxoLEUfrGWbn2Ayyqn5zU\",\"alg\":\"RS256\",\"use\":\"sig\",\"kid\":\"main\"}"
+  },
+  "analytics_engine_datasets": [
+    {
+      "binding": "ATTEMPT_RUNTIME_METRICS",
+      "dataset": "ATTEMPT_RUNTIME_METRICS"
+    }
+  ],
+  "send_email": [
+    {
+      "name": "EMAIL"
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "ATTEMPT_COORDINATOR",
+        "class_name": "AttemptDurableObject"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["AttemptDurableObject"]
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "HARBOR_DB",
+      "database_name": "harbor-runtime-local",
+      "database_id": "00000000-0000-0000-0000-000000000001",
+      "migrations_dir": "../../packages/db/migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "CONTENT_BUCKET",
+      "bucket_name": "harbor-content-local"
+    }
+  ],
+  "workflows": [
+    {
+      "binding": "RESULT_REMEDIATION_WORKFLOW",
+      "name": "harbor-result-remediation",
+      "class_name": "ResultRemediationWorkflow"
+    }
+  ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "SUBMIT_FINALIZATION_QUEUE",
+        "queue": "harbor-submit-finalization"
+      },
+      {
+        "binding": "RESULT_EXPORT_QUEUE",
+        "queue": "harbor-result-export"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "harbor-submit-finalization",
+        "dead_letter_queue": "harbor-submit-finalization-dlq"
+      },
+      {
+        "queue": "harbor-result-export",
+        "dead_letter_queue": "harbor-result-export-dlq"
+      }
+    ]
+  }
+}

@@ -1,0 +1,267 @@
+/* components/HarborInstructorLmsPage.tsx */
+.lms-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.lms-hero,
+.lms-section,
+.lms-empty {
+  border: 1px solid rgba(24, 39, 75, 0.12);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06);
+}
+
+.lms-hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.lms-actions,
+.lms-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.section-kicker {
+  margin: 0 0 0.25rem;
+  color: #52627a;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.lms-hero h1,
+.section-heading h2 {
+  margin: 0;
+  color: #111827;
+  letter-spacing: 0;
+}
+
+.lms-hero h1 {
+  font-size: 1.55rem;
+}
+
+.lms-hero p,
+.lms-empty p,
+.lms-row p,
+.lms-section-copy {
+  margin: 0.35rem 0 0;
+  color: #52627a;
+  line-height: 1.5;
+}
+
+.lms-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.summary-pill {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  border: 1px solid rgba(24, 39, 75, 0.12);
+  border-radius: 999px;
+  background: #f8fafc;
+  padding: 0.45rem 0.75rem;
+  color: #52627a;
+  font-size: 0.88rem;
+}
+
+.summary-pill strong {
+  color: #111827;
+}
+
+.lms-section {
+  padding: 1rem;
+}
+
+.lms-registration-setup {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.lms-registration-setup .section-heading {
+  margin-bottom: 0;
+}
+
+.lms-section-copy {
+  max-width: 68ch;
+}
+
+.lms-registration-url {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.lms-registration-url label {
+  color: #334155;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.lms-registration-url__control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.55rem;
+}
+
+.lms-registration-url input {
+  min-width: 0;
+  border: 1px solid rgba(24, 39, 75, 0.18);
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #1f3a5f;
+  font: inherit;
+  padding: 0.65rem 0.75rem;
+}
+
+.lms-registration-url input:focus-visible {
+  border-color: #2457d6;
+  outline: 2px solid rgba(36, 87, 214, 0.2);
+  outline-offset: 1px;
+}
+
+.lms-registration-url__status {
+  color: #b91c1c;
+  font-size: 0.78rem;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.lms-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.lms-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  border: 1px solid rgba(24, 39, 75, 0.1);
+  border-radius: 8px;
+  padding: 0.85rem;
+  background: #fbfdff;
+}
+
+.lms-row--actionable {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+}
+
+.lms-row-main {
+  min-width: 0;
+}
+
+.lms-row-main strong {
+  color: #111827;
+}
+
+.lms-row-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  color: #52627a;
+  font-size: 0.82rem;
+}
+
+.lms-row-meta span {
+  border-radius: 999px;
+  background: #eef4ff;
+  padding: 0.25rem 0.5rem;
+}
+
+.lms-row-meta .lms-error-pill {
+  background: #fff1f1;
+  color: #b91c1c;
+}
+
+.lms-empty {
+  padding: 1rem;
+}
+
+.lms-empty--error {
+  border-color: rgba(185, 28, 28, 0.24);
+  background: #fff7f7;
+}
+
+.lms-error-copy {
+  color: #b91c1c;
+}
+
+.lms-table-wrap {
+  overflow-x: auto;
+}
+
+.lms-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.lms-table th,
+.lms-table td {
+  border-bottom: 1px solid rgba(24, 39, 75, 0.1);
+  padding: 0.7rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.lms-table th {
+  color: #52627a;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.secondary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(24, 39, 75, 0.18);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1f3a5f;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 0.55rem 0.8rem;
+  text-decoration: none;
+}
+
+.secondary-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+@media (max-width: 760px) {
+  .lms-hero,
+  .lms-row,
+  .lms-row--actionable {
+    grid-template-columns: 1fr;
+  }
+
+  .lms-hero {
+    display: grid;
+  }
+
+  .lms-row-meta {
+    justify-content: flex-start;
+  }
+
+  .lms-registration-url__control {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "name": "qflow-deliver",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/local-dev.mjs --mode demo",
+    "dev:preview": "node scripts/local-dev.mjs --mode preview",
+    "dev:services": "node scripts/local-dev.mjs --mode services",
+    "dev:access-code": "node scripts/local-dev.mjs --mode access-code",
+    "dev:seed-reporting": "node tools/load/seed-reporting-demo.mjs --base-url http://127.0.0.1:8787",
+    "build:web": "pnpm --dir apps/harbor-web build",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "lint": "oxlint --quiet --ignore-pattern workers/runtime/test-env.d.ts",
+    "lint:fix": "oxlint --fix --ignore-pattern workers/runtime/test-env.d.ts",
+    "prepare": "lefthook install",
+    "typecheck": "tsc --noEmit && pnpm --dir apps/harbor-web typecheck",
+    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build:web",
+    "test": "pnpm test:workers && pnpm test:web",
+    "test:web": "pnpm --dir apps/harbor-web test",
+    "test:workers": "pnpm vitest run",
+    "test:e2e": "pnpm playwright test --config playwright.config.ts",
+    "test:e2e:staff": "pnpm playwright test --config playwright.staff.config.ts",
+    "test:e2e:delivery": "pnpm playwright test --config playwright.config.ts tests/e2e/phase1-renderer.spec.ts tests/e2e/pnp-a11y-support-ui.spec.ts tests/e2e/theme-visuals.spec.ts"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.16.15",
+    "@cloudflare/workers-types": "^4.20260612.1",
+    "@playwright/test": "^1.60.0",
+    "@types/node": "^25.9.3",
+    "axe-core": "4.11.4",
+    "jszip": "^3.10.1",
+    "lefthook": "2.1.9",
+    "oxfmt": "0.54.0",
+    "oxlint": "1.69.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.8",
+    "wrangler": "^4.100.0"
+  },
+  "packageManager": "pnpm@10.29.2"
+}

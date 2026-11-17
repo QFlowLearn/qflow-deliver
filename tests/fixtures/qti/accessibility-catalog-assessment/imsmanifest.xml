@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest identifier="accessibility-catalog-package" xmlns="http://www.imsglobal.org/xsd/qti/qtiv3p0/imscp_v1p1">
+  <metadata>
+    <schema>QTI Package</schema>
+    <schemaversion>3.0.0</schemaversion>
+  </metadata>
+  <organizations>
+    <organization identifier="organization-1">
+      <title>Accessibility Catalog Assessment</title>
+      <item identifier="media-supports" identifierref="media-supports-resource"/>
+      <item identifier="no-catalog-supports" identifierref="no-catalog-supports-resource"/>
+    </organization>
+  </organizations>
+  <resources>
+    <resource identifier="media-supports-resource" type="imsqti_item_xmlv3p0" href="items/media-supports.xml">
+      <file href="items/media-supports.xml"/>
+      <file href="items/media/presentation.mp4"/>
+      <file href="items/media/described.mp4"/>
+      <file href="items/media/sign-language.mp4"/>
+      <file href="items/captions/presentation-en.vtt"/>
+      <file href="items/transcripts/presentation-en.html"/>
+      <file href="items/styles/accessibility.css"/>
+      <file href="items/translations/photosynthesis-fr.txt"/>
+      <file href="items/translations/photosynthesis-de.mp3"/>
+      <file href="items/translations/photosynthesis-es.mp4"/>
+      <file href="items/translations/photosynthesis-ja.pdf"/>
+    </resource>
+    <resource identifier="no-catalog-supports-resource" type="imsqti_item_xmlv3p0" href="items/no-catalog-supports.xml">
+      <file href="items/no-catalog-supports.xml"/>
+      <file href="items/media/presentation.mp4"/>
+    </resource>
+  </resources>
+</manifest>

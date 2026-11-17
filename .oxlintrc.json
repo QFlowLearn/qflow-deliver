@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "ignorePatterns": [
+    "apps/harbor-web/dist/**",
+    "coverage/**",
+    "dist/**",
+    "node_modules/**",
+    "playwright-report/**",
+    "test-results/**",
+    "workers/runtime/test-env.d.ts"
+  ]
+}

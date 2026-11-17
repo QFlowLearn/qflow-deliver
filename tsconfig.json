@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023", "DOM", "WebWorker"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "noEmit": true,
+    "allowJs": false,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "ignoreDeprecations": "6.0",
+    "types": ["node", "@cloudflare/workers-types"],
+    "baseUrl": ".",
+    "paths": {
+      "@harbor/attempt-protocol": ["packages/attempt-protocol/src/index.ts"],
+      "@harbor/content-model": ["packages/content-model/src/index.ts"]
+    }
+  },
+  "include": [
+    "apps/**/*.d.ts",
+    "packages/**/*.d.ts",
+    "packages/**/*.ts",
+    "workers/**/*.d.ts",
+    "workers/**/*.ts",
+    "vitest.config.ts",
+    "playwright.config.ts",
+    "playwright.staff.config.ts",
+    "tests/staff-e2e/**/*.ts"
+  ]
+}

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="80" viewBox="0 0 240 80" role="img" aria-labelledby="title">
+  <title>Harbor math prompt banner</title>
+  <rect width="240" height="80" fill="#dceaf6" rx="12" />
+  <text x="24" y="48" fill="#12344d" font-family="Arial, sans-serif" font-size="24">2 + 2 = ?</text>
+</svg>

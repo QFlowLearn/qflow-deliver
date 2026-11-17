@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic instruction-only sections around the existing two-question fixture. -->
+<qti-assessment-test xmlns="http://www.imsglobal.org/xsd/imsqtiasi_v3p0" identifier="ordered-text" title="Ordered unscored text">
+  <qti-test-part identifier="P" title="Part 1" navigation-mode="nonlinear" submission-mode="simultaneous">
+    <qti-assessment-section identifier="INTRO" title="Before starting" visible="true">
+      <qti-rubric-block view="candidate" use="instructions"><qti-content-body><p>Read before starting.</p></qti-content-body></qti-rubric-block>
+    </qti-assessment-section>
+    <qti-assessment-section identifier="INTRO-TWO" title="Preparation" visible="true">
+      <qti-rubric-block view="candidate" use="instructions"><qti-content-body><p>Use both questions to practise.</p></qti-content-body></qti-rubric-block>
+    </qti-assessment-section>
+    <qti-assessment-section identifier="FIRST" title="First question" visible="true">
+      <qti-assessment-item-ref identifier="Q1" href="items/item-b35efecb-927b-46d4-a4e8-21950c2e44e0-r1.xml"/>
+    </qti-assessment-section>
+    <qti-assessment-section identifier="BETWEEN" title="Next passage" visible="true">
+      <qti-rubric-block view="candidate" use="instructions"><qti-content-body><p>Read &lt;script&gt; literally.<br/>Consider α &amp; β before the second question.</p><img src="assets/map.svg" alt="Reference map"/></qti-content-body></qti-rubric-block>
+      <qti-rubric-block view="scorer" use="instructions"><qti-content-body><p>Private scorer key.</p></qti-content-body></qti-rubric-block>
+    </qti-assessment-section>
+    <qti-assessment-section identifier="SECOND" title="Second question" visible="true">
+      <qti-assessment-item-ref identifier="Q2" href="items/item-83eb5274-d3d0-4c39-b559-534205a21b2c-r1.xml"/>
+    </qti-assessment-section>
+    <qti-assessment-section identifier="END" title="After answering" visible="true">
+      <qti-rubric-block view="candidate" use="instructions"><qti-content-body><p>Check your responses before finishing.</p></qti-content-body></qti-rubric-block>
+    </qti-assessment-section>
+    <qti-assessment-section identifier="END-TWO" title="Finish" visible="true">
+      <qti-rubric-block view="candidate" use="instructions"><qti-content-body><p>Submit when you are ready.</p></qti-content-body></qti-rubric-block>
+    </qti-assessment-section>
+  </qti-test-part>
+</qti-assessment-test>

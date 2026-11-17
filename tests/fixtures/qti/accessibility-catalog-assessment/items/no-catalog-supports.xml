@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<qti-assessment-item
+  xmlns="http://www.imsglobal.org/xsd/imsqtiasi_v3p0"
+  identifier="no-catalog-supports"
+  title="No Catalog Supports"
+  adaptive="false"
+  time-dependent="false">
+  <qti-response-declaration identifier="RESPONSE" cardinality="single" base-type="identifier"/>
+  <qti-item-body>
+    <qti-prompt>Review the presentation clip without catalog supports.</qti-prompt>
+    <video width="320" height="180" controls="controls">
+      <source src="media/presentation.mp4" type="video/mp4"/>
+    </video>
+  </qti-item-body>
+</qti-assessment-item>

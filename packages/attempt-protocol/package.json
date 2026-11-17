@@ -1,0 +1,13 @@
+{
+  "name": "@harbor/attempt-protocol",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@harbor/content-model": "workspace:*",
+    "@longsightgroup/qti3-core": "0.13.4"
+  }
+}

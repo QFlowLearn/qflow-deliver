@@ -1,0 +1,17 @@
+{
+  "name": "@harbor/renderer-adapter",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@harbor/attempt-protocol": "workspace:*",
+    "@harbor/content-model": "workspace:*",
+    "@longsightgroup/qti3-core": "0.13.4",
+    "@longsightgroup/qti3-player-preact": "0.13.4",
+    "preact": "10.29.2"
+  }
+}

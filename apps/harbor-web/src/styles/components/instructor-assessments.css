@@ -1,0 +1,548 @@
+/* components/HarborInstructorAssessmentsPage.tsx */
+.assessments-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.assessments-intro,
+.context-panel,
+.assessments-list-card,
+.editor-card {
+  border: 1px solid var(--harbor-line);
+  border-radius: var(--harbor-radius-xl);
+  background: var(--harbor-surface);
+  box-shadow: var(--harbor-shadow);
+}
+
+.assessments-intro,
+.editor-card,
+.assessments-list-card,
+.context-panel {
+  padding: 1rem 1.125rem;
+}
+
+.assessments-intro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.assessments-intro h1,
+.card-header h2 {
+  margin: 0;
+  color: var(--harbor-heading);
+  font-weight: 600;
+}
+
+.assessments-intro h1 {
+  font-size: var(--harbor-title-xl);
+  line-height: 1.2;
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.intro-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.context-panel {
+  display: grid;
+  gap: 0.625rem;
+}
+
+.workspace-grid {
+  display: grid;
+  align-items: start;
+  gap: 0.75rem;
+}
+
+.advanced-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.advanced-summary::-webkit-details-marker {
+  display: none;
+}
+
+.advanced-summary::after {
+  content: "Show";
+  flex: 0 0 auto;
+  min-width: 3.25rem;
+  border: 1px solid var(--harbor-line);
+  border-radius: var(--harbor-radius-pill);
+  padding: 0.25rem 0.625rem;
+  background: var(--harbor-surface-muted);
+  color: var(--harbor-copy-strong);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+details[open] > .advanced-summary::after {
+  content: "Hide";
+}
+
+.advanced-summary-copy {
+  display: grid;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.advanced-summary-copy strong {
+  color: var(--harbor-heading);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.advanced-summary-copy span {
+  color: var(--harbor-copy);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.advanced-panel-body {
+  display: grid;
+  gap: 0.625rem;
+  padding-top: 0.75rem;
+}
+
+.summary-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  border: 1px solid var(--harbor-line);
+  border-radius: var(--harbor-radius-pill);
+  padding: 0.25rem 0.625rem;
+  background: var(--harbor-surface);
+  color: var(--harbor-copy);
+  font-size: 0.8125rem;
+}
+
+.workspace-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.card-header {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.editor-card > .card-header {
+  margin-bottom: 0.875rem;
+}
+
+.editor-title {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  min-width: 0;
+}
+
+.editor-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.editor-section {
+  padding: 0.875rem;
+  border-radius: var(--harbor-radius-lg);
+  background: var(--harbor-surface);
+  border: 1px solid var(--harbor-line);
+}
+
+.editor-section--collapsed {
+  display: grid;
+  gap: 0;
+}
+
+.editor-section--collapsed[open] {
+  gap: 0.75rem;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.section-heading h3 {
+  margin: 0;
+  color: var(--harbor-heading);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.section-note {
+  color: var(--harbor-copy);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.assessment-list {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  margin-top: 0.75rem;
+}
+
+.assessment-list-item {
+  display: grid;
+  gap: 0.375rem;
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border-radius: var(--harbor-radius-lg);
+  border: 1px solid var(--harbor-line);
+  background: var(--harbor-surface);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 80ms ease,
+    box-shadow 80ms ease;
+}
+
+.assessment-list-item:hover {
+  border-color: var(--harbor-input-line);
+}
+
+.assessment-list-item[data-active="true"] {
+  border-color: #93c5fd;
+  box-shadow: var(--harbor-shadow);
+}
+
+.list-disclosure-button {
+  width: 100%;
+  min-height: 2.25rem;
+  margin-top: 0.75rem;
+  border: 1px solid var(--harbor-line);
+  border-radius: var(--harbor-radius-lg);
+  background: var(--harbor-surface-muted);
+  color: var(--harbor-copy-strong);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.list-disclosure-button:hover {
+  border-color: var(--harbor-input-line);
+}
+
+.assessment-list-item strong {
+  color: var(--harbor-heading);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.assessment-list-item p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--harbor-copy);
+}
+
+.item-topline,
+.item-meta {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.item-meta {
+  font-size: 0.75rem;
+  color: var(--harbor-copy);
+}
+
+.field-row {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 0.625rem;
+}
+
+.target-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: minmax(12rem, 0.8fr) minmax(16rem, 1.2fr);
+  margin-top: 0.625rem;
+}
+
+.learner-target-picker,
+.section-target-picker {
+  display: grid;
+  gap: 0.625rem;
+  min-width: 0;
+}
+
+.target-picker-header {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.target-picker-header strong {
+  color: var(--harbor-copy-strong);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.target-picker-header p,
+.target-picker-error,
+.section-option-list--empty p {
+  margin: 0;
+  color: var(--harbor-copy);
+  font-size: 0.8125rem;
+}
+
+.target-picker-error {
+  color: #991b1b;
+}
+
+.section-refresh-button {
+  min-height: 1.875rem;
+  padding-block: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.selected-section-list {
+  display: flex;
+  gap: 0.375rem;
+  flex-wrap: wrap;
+}
+
+.selected-section-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 1.875rem;
+  border: 1px solid #bfdbfe;
+  border-radius: var(--harbor-radius-pill);
+  padding: 0.25rem 0.625rem;
+  background: #eff6ff;
+  color: #1e3a8a;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.selected-section-chip--manual {
+  border-color: var(--harbor-line);
+  background: var(--harbor-surface-muted);
+  color: var(--harbor-copy-strong);
+}
+
+.selected-section-chip small {
+  color: inherit;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  opacity: 0.78;
+}
+
+.section-search-field {
+  margin-top: 0;
+}
+
+.section-option-list {
+  display: grid;
+  gap: 0.375rem;
+  max-height: 16rem;
+  overflow: auto;
+}
+
+.section-option-list--empty {
+  border: 1px solid var(--harbor-line);
+  border-radius: var(--harbor-radius-lg);
+  padding: 0.625rem 0.75rem;
+  background: var(--harbor-surface-muted);
+}
+
+.section-option-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  border: 1px solid var(--harbor-line);
+  border-radius: var(--harbor-radius-lg);
+  padding: 0.5rem 0.625rem;
+  background: var(--harbor-surface);
+  color: var(--harbor-copy);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.section-option-button:hover {
+  border-color: var(--harbor-input-line);
+}
+
+.section-option-button[data-selected="true"] {
+  border-color: #93c5fd;
+  background: #eff6ff;
+}
+
+.hierarchy-target-grid {
+  display: grid;
+  gap: 0.625rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 0.75rem;
+  border: 1px solid var(--harbor-line);
+  border-radius: var(--harbor-radius-lg);
+  background: var(--harbor-surface-muted);
+}
+
+.hierarchy-target-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: end;
+  grid-column: 1 / -1;
+}
+
+.section-option-button strong {
+  display: block;
+  color: var(--harbor-heading);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.section-option-button small,
+.section-option-button > span:last-child {
+  color: var(--harbor-copy);
+  font-size: 0.75rem;
+}
+
+.manual-section-targets {
+  border-top: 1px solid var(--harbor-line);
+  padding-top: 0.5rem;
+}
+
+.manual-section-targets summary {
+  color: var(--harbor-copy-strong);
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.field-row--triple {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.field-row--quad {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.field--span-two {
+  grid-column: span 2;
+}
+
+.toggles {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.625rem;
+}
+
+.toggle {
+  display: flex;
+  gap: 0.375rem;
+  align-items: center;
+  padding: 0.375rem 0.625rem;
+  border-radius: 6px;
+  background: var(--harbor-surface-muted);
+  color: var(--harbor-copy-strong);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.managed-seb-keys {
+  display: grid;
+  gap: 0.125rem;
+  align-content: center;
+  min-height: 2.75rem;
+  border: 1px solid var(--harbor-line);
+  border-radius: var(--harbor-radius-lg);
+  padding: 0.5rem 0.625rem;
+  background: var(--harbor-surface-muted);
+}
+
+.managed-seb-keys span {
+  color: var(--harbor-copy);
+  font-size: 0.75rem;
+}
+
+.managed-seb-keys strong {
+  color: var(--harbor-copy-strong);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.list-feedback {
+  margin-top: 0.625rem;
+  padding: 0.625rem 0.75rem;
+  color: var(--harbor-copy-strong);
+  font-size: 0.8125rem;
+}
+
+.list-feedback p,
+.meta-line {
+  margin: 0;
+}
+
+@media (max-width: 1180px) {
+  .workspace-grid,
+  .target-grid,
+  .hierarchy-target-grid,
+  .field-row--triple,
+  .field-row--quad {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 840px) {
+  .assessments-intro,
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .advanced-summary {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .advanced-summary::after {
+    align-self: flex-start;
+  }
+
+  .workspace-grid,
+  .target-grid,
+  .hierarchy-target-grid,
+  .field-row,
+  .field-row--triple,
+  .field-row--quad {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .field--span-two {
+    grid-column: span 1;
+  }
+}

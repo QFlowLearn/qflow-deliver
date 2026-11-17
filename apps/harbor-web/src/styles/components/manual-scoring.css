@@ -1,0 +1,157 @@
+/* components/HarborManualScoringPage.tsx */
+.manual-scoring-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.manual-scoring-hero,
+.manual-review-header,
+.manual-scoring-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.manual-scoring-layout {
+  display: grid;
+  grid-template-columns: minmax(20rem, 0.85fr) minmax(0, 2fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.manual-scoring-queue,
+.manual-scoring-review {
+  border: 1px solid var(--harbor-border);
+  border-radius: 0.5rem;
+  background: var(--harbor-surface);
+  padding: 1rem;
+}
+
+.manual-scoring-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.manual-scoring-table th,
+.manual-scoring-table td {
+  padding: 0.75rem;
+  border-block-end: 1px solid var(--harbor-border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.manual-scoring-table tr[data-active="true"] {
+  background: var(--harbor-surface-soft);
+}
+
+.table-subtext {
+  display: block;
+  margin-block-start: 0.25rem;
+  color: var(--harbor-muted);
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+.manual-review-grid {
+  display: grid;
+  grid-template-columns: minmax(12rem, 0.6fr) minmax(18rem, 1.2fr) minmax(16rem, 0.8fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.manual-item-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.manual-item-list button {
+  display: grid;
+  gap: 0.25rem;
+  width: 100%;
+  min-height: 3.5rem;
+  padding: 0.75rem;
+  border: 1px solid var(--harbor-border);
+  border-radius: 0.375rem;
+  background: var(--harbor-surface);
+  color: inherit;
+  text-align: left;
+}
+
+.manual-item-list button[data-active="true"] {
+  border-color: var(--harbor-accent);
+  background: var(--harbor-surface-soft);
+}
+
+.manual-item-list small {
+  color: var(--harbor-muted);
+}
+
+.manual-item-preview,
+.manual-score-form {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.manual-item-preview {
+  border: 1px solid var(--harbor-border);
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.response-summary {
+  max-width: 72ch;
+  white-space: pre-wrap;
+}
+
+.manual-score-form fieldset {
+  display: grid;
+  gap: 0.625rem;
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid var(--harbor-border);
+  border-radius: 0.5rem;
+}
+
+.manual-score-form label {
+  font-weight: 650;
+}
+
+.field-hint {
+  margin: -0.25rem 0 0;
+  color: var(--harbor-muted);
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+
+.manual-score-form input,
+.manual-score-form textarea {
+  width: 100%;
+  min-height: 2.75rem;
+  border: 1px solid var(--harbor-border-strong);
+  border-radius: 0.375rem;
+  padding: 0.625rem 0.75rem;
+  font: inherit;
+}
+
+.manual-score-form textarea {
+  min-height: 5.5rem;
+  resize: vertical;
+}
+
+.manual-feedback-note {
+  display: block;
+  margin-block-start: 0.375rem;
+  color: var(--harbor-muted);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 72rem) {
+  .manual-scoring-layout,
+  .manual-review-grid {
+    grid-template-columns: 1fr;
+  }
+}

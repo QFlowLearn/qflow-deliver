@@ -1,0 +1,16 @@
+packages:
+  - "apps/*"
+  - "workers/*"
+  - "packages/*"
+
+minimumReleaseAgeExclude:
+  - "@longsightgroup/lti-tool"
+  - "@longsightgroup/oneroster"
+  - "@longsightgroup/qti3-*"
+
+overrides:
+  hono: 4.13.16
+  fflate: 0.8.3
+  source-map-js: 1.2.2
+  "zod@>=4 <5": 4.6.6
+  tinypool: 2.1.2
