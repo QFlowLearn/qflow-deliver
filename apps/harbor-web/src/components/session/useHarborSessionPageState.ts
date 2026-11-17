@@ -44,6 +44,7 @@ export function useHarborSessionPageState(runtime: HarborRuntimeController) {
     handleRendererInteractionObserved,
     handleScoreAttemptCompleted,
     handleSuspendAttemptCompleted,
+    handleSnapshotAttemptCompleted,
     itemReady,
     latestSubmittedAttempt,
     latestSubmittedOutcomeMessage,
@@ -607,6 +608,9 @@ export function useHarborSessionPageState(runtime: HarborRuntimeController) {
       });
       host.addEventListener("score-attempt-completed", (event) => {
         void handleScoreAttemptCompleted(readCustomEventDetail(event));
+      });
+      host.addEventListener("snapshot-attempt-completed", (event) => {
+        void handleSnapshotAttemptCompleted(readCustomEventDetail(event));
       });
       host.addEventListener("suspend-attempt-completed", (event) => {
         void handleSuspendAttemptCompleted(readCustomEventDetail(event));

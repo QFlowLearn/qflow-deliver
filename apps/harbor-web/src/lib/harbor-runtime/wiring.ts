@@ -415,6 +415,7 @@ export function buildHarborRuntimeFacade(input: HarborRuntimeWiring) {
     handleRendererInteractionObserved: renderer.handleRendererInteractionObserved,
     handleScoreAttemptCompleted: renderer.handleScoreAttemptCompleted,
     handleSuspendAttemptCompleted: renderer.handleSuspendAttemptCompleted,
+    handleSnapshotAttemptCompleted: renderer.handleSnapshotAttemptCompleted,
     pnpPolicy: input.pnpPolicy,
     rendererAccommodationStatusLabel: input.rendererAccommodationStatusLabel,
     rendererConfiguration: input.rendererConfiguration,

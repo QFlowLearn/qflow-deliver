@@ -8,7 +8,7 @@ import type { ReadonlyRefLike, RefLike } from "./ref-like";
 const RENDERER_PREFLUSH_DEBOUNCE_MS = 800;
 const RENDERER_MAX_DIRTY_MS = 4_000;
 
-type RendererCaptureCommand = "suspend" | "end" | "score";
+type RendererCaptureCommand = "snapshot" | "suspend" | "end" | "score";
 
 interface RendererCaptureResult {
   readonly state: unknown;
@@ -22,6 +22,7 @@ export interface RendererLifecycleRuntime {
   requestEndAttempt(): void;
   handleItemReady(): void;
   handleSuspendAttemptCompleted(payload: unknown): void;
+  handleSnapshotAttemptCompleted(payload: unknown): void;
   handleEndAttemptCompleted(payload: unknown): void;
   handleScoreAttemptCompleted(payload: unknown): void;
   handleRendererInteractionObserved(): void;
@@ -93,6 +94,10 @@ export function createRendererLifecycleRuntime(input: {
     void captureLifecycleItemState("item-ready-validation").catch(handleLocalPersistenceError);
   }
 
+  function handleSnapshotAttemptCompleted(payload: unknown): void {
+    handleRendererCaptureCompleted("snapshot", payload);
+  }
+
   function handleSuspendAttemptCompleted(payload: unknown): void {
     handleRendererCaptureCompleted("suspend", payload);
   }
@@ -159,7 +164,7 @@ export function createRendererLifecycleRuntime(input: {
       responseDirty = false;
       const attemptId = input.getCurrentAttemptId();
       const itemId = input.currentItemId.value;
-      const itemState = await enqueueCapture("suspend", `harborLifecycle:${reason}`);
+      const itemState = await enqueueCapture("snapshot", `harborLifecycle:${reason}`);
       if (wasDirty && attemptId && itemId && reason !== "item-ready-validation")
         await input.onResponseCheckpoint({
           attemptId,
@@ -213,7 +218,7 @@ export function createRendererLifecycleRuntime(input: {
     }
 
     if (command === "score") {
-      const syncCapture = await captureRendererCommand("suspend", `${target}:sync`);
+      const syncCapture = await captureRendererCommand("snapshot", `${target}:sync`);
       const recoveryPersistence = syncCapture.persistence.catch(handleLocalPersistenceError);
       const capture = await captureRendererCommand(command, target);
       await recoveryPersistence;
@@ -254,6 +259,9 @@ export function createRendererLifecycleRuntime(input: {
       };
 
       switch (command) {
+        case "snapshot":
+          input.rendererHost.value?.snapshotAttempt(target);
+          break;
         case "suspend":
           input.rendererHost.value?.suspendAttempt(target);
           break;
@@ -356,6 +364,7 @@ export function createRendererLifecycleRuntime(input: {
     requestEndAttempt,
     handleItemReady,
     handleSuspendAttemptCompleted,
+    handleSnapshotAttemptCompleted,
     handleEndAttemptCompleted,
     handleScoreAttemptCompleted,
     handleRendererInteractionObserved,

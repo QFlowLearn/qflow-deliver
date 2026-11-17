@@ -11,7 +11,7 @@ interface PersistenceWrite {
 
 class RecordingRendererHost implements RendererHostHandle {
   readonly commands: Array<{
-    readonly command: "suspend" | "end" | "score";
+    readonly command: "snapshot" | "suspend" | "end" | "score";
     readonly target: string;
   }> = [];
 
@@ -25,6 +25,10 @@ class RecordingRendererHost implements RendererHostHandle {
 
   suspendAttempt(target: string): void {
     this.commands.push({ command: "suspend", target });
+  }
+
+  snapshotAttempt(target: string): void {
+    this.commands.push({ command: "snapshot", target });
   }
 
   scoreAttempt(target: string): void {
@@ -131,7 +135,7 @@ describe("renderer lifecycle persistence", () => {
     expect(harness.writes).toEqual([]);
   });
 
-  it("persists the resumable suspend checkpoint once for an awaited score capture", async () => {
+  it("persists the resumable live checkpoint once for an awaited score capture", async () => {
     const harness = createHarness();
     const host = harness.host;
     if (!(host instanceof RecordingRendererHost)) {
@@ -139,13 +143,13 @@ describe("renderer lifecycle persistence", () => {
     }
 
     const capture = harness.runtime.captureCurrentItemState("score", "harborSaveDraft");
-    expect(host.commands).toEqual([{ command: "suspend", target: "harborSaveDraft:sync" }]);
+    expect(host.commands).toEqual([{ command: "snapshot", target: "harborSaveDraft:sync" }]);
 
-    const suspendedState = { itemIdentifier: "item-1", response: "draft" };
-    harness.runtime.handleSuspendAttemptCompleted({ state: suspendedState });
+    const checkpointState = { itemIdentifier: "item-1", response: "draft" };
+    harness.runtime.handleSnapshotAttemptCompleted({ state: checkpointState });
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(host.commands).toEqual([
-      { command: "suspend", target: "harborSaveDraft:sync" },
+      { command: "snapshot", target: "harborSaveDraft:sync" },
       { command: "score", target: "harborSaveDraft" },
     ]);
 
@@ -156,7 +160,7 @@ describe("renderer lifecycle persistence", () => {
     expect(harness.writes).toEqual([
       {
         attemptId: "attempt-1",
-        states: { "item-1": suspendedState },
+        states: { "item-1": checkpointState },
       },
     ]);
   });
@@ -166,10 +170,10 @@ describe("renderer lifecycle persistence", () => {
     const harness = createHarness(new RecordingRendererHost(), () => {
       return new Promise((resolve) => pendingWriteResolutions.push(resolve));
     });
-    const suspendedState = { itemIdentifier: "item-1", response: "draft" };
+    const checkpointState = { itemIdentifier: "item-1", response: "draft" };
     const endedState = { itemIdentifier: "item-1", response: "final" };
 
-    harness.runtime.handleSuspendAttemptCompleted({ state: suspendedState });
+    harness.runtime.handleSnapshotAttemptCompleted({ state: checkpointState });
     harness.runtime.handleEndAttemptCompleted({ state: endedState });
 
     harness.currentAttemptId.value = "attempt-2";
@@ -181,7 +185,7 @@ describe("renderer lifecycle persistence", () => {
     expect(harness.writes).toEqual([
       {
         attemptId: "attempt-1",
-        states: { "item-1": suspendedState },
+        states: { "item-1": checkpointState },
       },
       {
         attemptId: "attempt-1",
@@ -191,7 +195,7 @@ describe("renderer lifecycle persistence", () => {
 
     const finishSuspendWrite = pendingWriteResolutions.shift();
     if (!finishSuspendWrite) {
-      throw new Error("Expected the suspend checkpoint write to be pending.");
+      throw new Error("Expected the live checkpoint write to be pending.");
     }
     finishSuspendWrite();
 
@@ -203,7 +207,7 @@ describe("renderer lifecycle persistence", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
   });
 
-  it("returns the scored state after a suspend checkpoint failure", async () => {
+  it("returns the scored state after a live checkpoint failure", async () => {
     let writeCount = 0;
     const harness = createHarness(new RecordingRendererHost(), async () => {
       writeCount += 1;
@@ -212,10 +216,10 @@ describe("renderer lifecycle persistence", () => {
       }
     });
     const capture = harness.runtime.captureCurrentItemState("score", "harborSaveDraft");
-    const suspendedState = { itemIdentifier: "item-1", response: "draft" };
+    const checkpointState = { itemIdentifier: "item-1", response: "draft" };
     const scoredState = { itemIdentifier: "item-1", response: "final", score: 1 };
 
-    harness.runtime.handleSuspendAttemptCompleted({ state: suspendedState });
+    harness.runtime.handleSnapshotAttemptCompleted({ state: checkpointState });
     await new Promise((resolve) => setTimeout(resolve, 0));
     harness.runtime.handleScoreAttemptCompleted({ state: scoredState });
 
@@ -226,7 +230,7 @@ describe("renderer lifecycle persistence", () => {
     expect(harness.writes).toEqual([
       {
         attemptId: "attempt-1",
-        states: { "item-1": suspendedState },
+        states: { "item-1": checkpointState },
       },
     ]);
   });

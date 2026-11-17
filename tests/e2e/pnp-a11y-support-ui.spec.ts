@@ -263,6 +263,7 @@ test("renders entitled catalog supports accessibly and records support evidence"
     "could not be loaded",
   );
   await page.getByTestId("glossary-dialog").getByRole("button", { name: "Close" }).click();
+  await expect(page.getByTestId("glossary-dialog")).toHaveCount(0);
   await expect(glossaryButton).toBeFocused();
   await page.unrouteAll({ behavior: "wait" });
 

@@ -101,6 +101,7 @@ export interface RendererHostHandle {
   updateBuiltIns(builtIns: NonNullable<RendererConfiguration["builtIns"]>): void;
   endAttempt(target: string): void;
   suspendAttempt(target: string): void;
+  snapshotAttempt(target: string): void;
   scoreAttempt(target: string): void;
   getRenderedText(): string;
   getAnswerMaskChoiceRegions(): RendererAnswerMaskChoiceRegion[];
@@ -189,6 +190,17 @@ export class QtiRendererHost extends HTMLElement implements RendererHostHandle {
 
   suspendAttempt(_target: string): void {
     this.playerHandle.suspend();
+  }
+
+  /** Capture a resumable checkpoint while the learner continues interacting. */
+  snapshotAttempt(_target: string): void {
+    const state = this.playerHandle.serialize();
+    if (!state) throw new Error("Cannot checkpoint an unloaded QTI item.");
+    this.dispatchEvent(
+      new CustomEvent("snapshot-attempt-completed", {
+        detail: { state: stripHarborBuiltInsFromAttemptState(state) },
+      }),
+    );
   }
 
   scoreAttempt(target: string): void {
