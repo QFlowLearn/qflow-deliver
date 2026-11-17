@@ -310,11 +310,13 @@ test("overdue frozen work stays locked and preserved until an authenticated staf
   await page.context().setOffline(true);
   await page.getByTestId("submit-attempt-button").click();
   await expectPendingLock(page);
+  // The server deadline alarm submits saved checkpoints even while the browser is offline.
+  // The frozen final batch still needs staff authorization before it can replace that work.
   await expect
     .poll(async () => (await readTimingWitness(page.request, attemptId)).status, {
       timeout: 10_000,
     })
-    .toBe("expired_pending_recovery");
+    .toBe("submitted");
   await page.context().setOffline(false);
   await expect(page.getByTestId("submission-state")).toHaveText("review_required");
   await expect(page.getByTestId("pending-event-count")).toHaveText("2");
@@ -324,7 +326,7 @@ test("overdue frozen work stays locked and preserved until an authenticated staf
   ).toBeVisible();
   expect(await readTimingWitness(page.request, attemptId)).toEqual({
     ...before,
-    status: "expired_pending_recovery",
+    status: "submitted",
   });
   const staff = await playwright.request.newContext();
   try {
