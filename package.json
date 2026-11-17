@@ -27,7 +27,7 @@
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.16.15",
     "@cloudflare/workers-types": "^4.20260612.1",
-    "@playwright/test": "^1.60.0",
+    "@playwright/test": "^1.64.1",
     "@types/node": "^25.9.3",
     "axe-core": "4.11.4",
     "jsonc-parser": "3.3.1",
