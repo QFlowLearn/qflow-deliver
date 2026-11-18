@@ -167,6 +167,7 @@ test("a shared network outage reconciles all candidates, explicit time adjustmen
     const recoveringAccepted = pages[2];
     if (!recoveringAccepted) throw new Error("Missing accepted candidate");
     let acceptedReceipt: string | null = null;
+    const finishAccepted = Promise.withResolvers<void>();
     await recoveringAccepted.route("**/api/attempts/*/events", async (route) => {
       const event: unknown = route.request().postDataJSON();
       if (
@@ -190,12 +191,15 @@ test("a shared network outage reconciles all candidates, explicit time adjustmen
         throw new Error("Missing original receipt");
       acceptedReceipt = receipt.receiptId;
       await route.abort("failed");
+      finishAccepted.resolve();
     });
     await recoveringAccepted.getByTestId("submit-attempt-button").click();
     await expectPendingLock(recoveringAccepted);
+    await finishAccepted.promise;
     const before = await Promise.all(
       pages.map((candidate, i) => readTimingWitness(candidate.request, attemptIds[i]!)),
     );
+    expect(before.map((attempt) => attempt.status)).toEqual(["active", "active", "submitted"]);
     await Promise.all(contexts.map((context) => context.setOffline(true)));
     const [interrupted, finishing, reopening] = pages;
     if (!interrupted || !finishing || !reopening) throw new Error("Missing outage candidate");
