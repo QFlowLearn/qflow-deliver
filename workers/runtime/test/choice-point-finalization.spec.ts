@@ -21,7 +21,7 @@ import {
   SUBMIT_FINALIZATION_QUEUE_NAME,
   type SubmitFinalizationEnvelope,
 } from "../src/queues/submit-finalization";
-import { createQueueMock } from "./queue-mock";
+import { observeQueue } from "./queue-fixture";
 import singleXml from "../../../tests/fixtures/qti/choice-points/single.xml?raw";
 import multipleXml from "../../../tests/fixtures/qti/choice-points/multiple.xml?raw";
 import practiceXml from "../../../tests/fixtures/qti/choice-points/practice.xml?raw";
@@ -134,11 +134,14 @@ it.each([
     const queued: SubmitFinalizationEnvelope[] = [];
     const runtimeEnv = {
       ...env,
-      SUBMIT_FINALIZATION_QUEUE: createQueueMock<SubmitFinalizationEnvelope>({
-        send: async (message) => {
-          queued.push(message);
+      SUBMIT_FINALIZATION_QUEUE: observeQueue<SubmitFinalizationEnvelope>(
+        env.SUBMIT_FINALIZATION_QUEUE,
+        {
+          beforeSend: async (message) => {
+            queued.push(message);
+          },
         },
-      }),
+      ),
     };
     const ctx = createExecutionContext();
     const submitted = await runtimeWorker.fetch(

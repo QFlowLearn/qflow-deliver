@@ -35,8 +35,10 @@ declare module "*?raw" {
   export default source;
 }
 
+type RuntimeTestBindings = import("./src/env").Env;
+
 declare namespace Cloudflare {
-  interface Env extends import("./src/index").Env {
+  interface Env extends RuntimeTestBindings {
     TEST_MIGRATIONS: Array<{ name: string; queries: string[] }>;
   }
 

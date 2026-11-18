@@ -1,3 +1,4 @@
+import { prepareQueueInbox } from "./native-queue-sink";
 import JSZip from "jszip";
 import {
   applyD1Migrations,
@@ -7,7 +8,7 @@ import {
   waitOnExecutionContext,
 } from "cloudflare:test";
 import { env, exports as workerExports } from "cloudflare:workers";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import type {
   AttemptEventCommitResponse,
   BootstrapEnvelope,
@@ -23,7 +24,7 @@ import {
   runPendingSubmitFinalizationRequeues,
 } from "../src/queues/submit-finalization";
 import { ensurePendingSubmitFinalization } from "../src/queues/submit-finalization-outbox";
-import { createQueueMock } from "./queue-mock";
+import { observeQueue } from "./queue-fixture";
 import manifestXml from "../../../tests/fixtures/qti/basic-assessment/imsmanifest.xml?raw";
 import stimulusSvg from "../../../tests/fixtures/qti/basic-assessment/assets/stimulus.svg?raw";
 
@@ -249,12 +250,13 @@ function buildRuntimeEnv(input: {
           points.push(point ?? {});
         },
       } as AnalyticsEngineDataset,
-      SUBMIT_FINALIZATION_QUEUE: createQueueMock<
-        ReturnType<typeof buildSubmitFinalizationEnvelope>
-      >({
-        send: input.send,
-        sendBatchError: "sendBatch is not used in phase 4 tests",
-      }),
+      SUBMIT_FINALIZATION_QUEUE: observeQueue<ReturnType<typeof buildSubmitFinalizationEnvelope>>(
+        env.SUBMIT_FINALIZATION_QUEUE,
+        {
+          beforeSend: input.send,
+          sendBatchError: "sendBatch is not used in phase 4 tests",
+        },
+      ),
     },
     points,
   };
@@ -293,6 +295,37 @@ beforeEach(async () => {
 });
 
 describe("submit finalization queue contracts", () => {
+  it("observes successful sends while storing the envelope in the native queue", async () => {
+    const nativeQueue = env.SUBMIT_FINALIZATION_QUEUE;
+    await prepareQueueInbox(env.HARBOR_DB);
+    const recorded: Array<ReturnType<typeof buildSubmitFinalizationEnvelope>> = [];
+    const queue = observeQueue(nativeQueue, {
+      beforeSend(message) {
+        recorded.push(message);
+      },
+    });
+    const envelope = buildSubmitFinalizationEnvelope({
+      eventType: "submit.requested",
+      receipt: {
+        ...buildSubmitReceipt(),
+        receiptId: `receipt_native_queue_${crypto.randomUUID()}`,
+      },
+    });
+    const response = await queue.send(envelope);
+    expect(recorded).toEqual([envelope]);
+    expect(response.metadata.metrics.backlogCount).toBeGreaterThanOrEqual(0);
+    await expect
+      .poll(async () => {
+        const delivered = await env.HARBOR_DB.prepare(
+          "SELECT body_json FROM test_queue_deliveries WHERE queue_name = ? AND json_extract(body_json, '$.receiptId') = ?",
+        )
+          .bind(SUBMIT_FINALIZATION_QUEUE_NAME, envelope.receiptId)
+          .first<{ body_json: string }>();
+        return delivered ? JSON.parse(delivered.body_json) : null;
+      })
+      .toEqual(envelope);
+  });
+
   it("builds the minimal post-receipt envelope for accepted submit fan-out", () => {
     const envelope = buildSubmitFinalizationEnvelope({
       eventType: "submit.requested",
@@ -321,9 +354,9 @@ describe("submit finalization queue contracts", () => {
     const payload = await launchPreviewAttempt();
     const queued: Array<ReturnType<typeof buildSubmitFinalizationEnvelope>> = [];
     const { runtimeEnv } = buildRuntimeEnv({
-      send: vi.fn(async (message) => {
+      send: async (message) => {
         queued.push(message);
-      }),
+      },
     });
     const ctx = createExecutionContext();
     const response = await fetchWithRuntimeEnv(
@@ -426,9 +459,9 @@ describe("submit finalization queue contracts", () => {
     const payload = await launchPreviewAttempt();
     const queued: Array<ReturnType<typeof buildSubmitFinalizationEnvelope>> = [];
     const { runtimeEnv } = buildRuntimeEnv({
-      send: vi.fn(async (message) => {
+      send: async (message) => {
         queued.push(message);
-      }),
+      },
     });
     const submitCtx = createExecutionContext();
     const submitResponse = await fetchWithRuntimeEnv(
@@ -478,14 +511,15 @@ describe("submit finalization queue contracts", () => {
       LTI_TOOL_PRIVATE_KEY_JWK: base.LTI_TOOL_PRIVATE_KEY_JWK,
       ATTEMPT_COORDINATOR: base.ATTEMPT_COORDINATOR,
       ATTEMPT_RUNTIME_METRICS: getBaseEnv().ATTEMPT_RUNTIME_METRICS,
-      SUBMIT_FINALIZATION_QUEUE: createQueueMock<
-        ReturnType<typeof buildSubmitFinalizationEnvelope>
-      >({
-        async send() {
-          throw new Error("queue producer is not used by the queue consumer");
+      SUBMIT_FINALIZATION_QUEUE: observeQueue<ReturnType<typeof buildSubmitFinalizationEnvelope>>(
+        env.SUBMIT_FINALIZATION_QUEUE,
+        {
+          async beforeSend() {
+            throw new Error("queue producer is not used by the queue consumer");
+          },
+          sendBatchError: "queue producer is not used by the queue consumer",
         },
-        sendBatchError: "queue producer is not used by the queue consumer",
-      }),
+      ),
     };
 
     expect(typeof exportedHandler.queue).toBe("function");
@@ -515,12 +549,12 @@ describe("submit finalization queue contracts", () => {
       resolveSend = resolve;
     });
     const queued: Array<ReturnType<typeof buildSubmitFinalizationEnvelope>> = [];
-    const send = vi.fn(
-      async (message: ReturnType<typeof buildSubmitFinalizationEnvelope>): Promise<void> => {
-        queued.push(message);
-        await sendPromise;
-      },
-    );
+    const send = async (
+      message: ReturnType<typeof buildSubmitFinalizationEnvelope>,
+    ): Promise<void> => {
+      queued.push(message);
+      await sendPromise;
+    };
     const { runtimeEnv, points } = buildRuntimeEnv({ send });
     const ctx = createExecutionContext();
     const request = new Request(`https://harbor.local/api/attempts/${payload.attemptId}/events`, {
@@ -573,7 +607,7 @@ describe("submit finalization queue contracts", () => {
     resolveSend();
     await waitOnExecutionContext(ctx);
 
-    expect(send).toHaveBeenCalledTimes(1);
+    expect(queued).toHaveLength(1);
     expect(queued).toEqual([
       {
         attemptId: payload.attemptId,
@@ -603,9 +637,9 @@ describe("submit finalization queue contracts", () => {
     const payload = await launchPreviewAttempt();
     const queueFailure = new Error("queue temporarily unavailable");
     const { runtimeEnv } = buildRuntimeEnv({
-      send: vi.fn(async () => {
+      send: async () => {
         throw queueFailure;
-      }),
+      },
     });
     const ctx = createExecutionContext();
     const response = await fetchWithRuntimeEnv(
@@ -652,14 +686,15 @@ describe("submit finalization queue contracts", () => {
     const requeueSummary = await runPendingSubmitFinalizationRequeues({
       env: {
         ...runtimeEnv,
-        SUBMIT_FINALIZATION_QUEUE: createQueueMock<
-          ReturnType<typeof buildSubmitFinalizationEnvelope>
-        >({
-          async send(message) {
-            requeued.push(message);
+        SUBMIT_FINALIZATION_QUEUE: observeQueue<ReturnType<typeof buildSubmitFinalizationEnvelope>>(
+          env.SUBMIT_FINALIZATION_QUEUE,
+          {
+            async beforeSend(message) {
+              requeued.push(message);
+            },
+            sendBatchError: "sendBatch is not used by requeue tests",
           },
-          sendBatchError: "sendBatch is not used by requeue tests",
-        }),
+        ),
       },
     });
 
@@ -682,7 +717,7 @@ describe("submit finalization queue contracts", () => {
   it("preserves auto-submit source type when requeueing stranded finalizations", async () => {
     const payload = await launchPreviewAttempt();
     const { runtimeEnv } = buildRuntimeEnv({
-      send: vi.fn(async () => undefined),
+      send: async () => undefined,
     });
     const receipt: CommitAttemptEventReceipt = {
       ...buildSubmitReceipt(),
@@ -707,14 +742,15 @@ describe("submit finalization queue contracts", () => {
     const requeueSummary = await runPendingSubmitFinalizationRequeues({
       env: {
         ...runtimeEnv,
-        SUBMIT_FINALIZATION_QUEUE: createQueueMock<
-          ReturnType<typeof buildSubmitFinalizationEnvelope>
-        >({
-          async send(message) {
-            requeued.push(message);
+        SUBMIT_FINALIZATION_QUEUE: observeQueue<ReturnType<typeof buildSubmitFinalizationEnvelope>>(
+          env.SUBMIT_FINALIZATION_QUEUE,
+          {
+            async beforeSend(message) {
+              requeued.push(message);
+            },
+            sendBatchError: "sendBatch is not used by requeue tests",
           },
-          sendBatchError: "sendBatch is not used by requeue tests",
-        }),
+        ),
       },
     });
 
@@ -738,9 +774,9 @@ describe("submit finalization queue contracts", () => {
     const payload = await launchPreviewAttempt();
     const queued: Array<ReturnType<typeof buildSubmitFinalizationEnvelope>> = [];
     const { runtimeEnv } = buildRuntimeEnv({
-      send: vi.fn(async (message) => {
+      send: async (message) => {
         queued.push(message);
-      }),
+      },
     });
     const event = {
       attemptId: payload.attemptId,

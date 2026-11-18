@@ -13,6 +13,7 @@ export function buildResetEmailMessage(input: {
     `From: ${from}`,
     `To: ${to}`,
     `Subject: ${RESET_EMAIL_SUBJECT}`,
+    `Message-ID: <${crypto.randomUUID()}@${from.slice(from.lastIndexOf("@") + 1)}>`,
     "Content-Type: text/plain; charset=UTF-8",
     "Content-Transfer-Encoding: 8bit",
     "",

@@ -13,12 +13,12 @@ import {
   extractAuthorizeParams,
   extractDeepLinkingJwt,
   issueSignedDeepLinkingIdToken,
-  stubPlatformJwksFetch,
+  servePlatformJwks,
 } from "./lti-test-platform";
 
 beforeEach(async () => {
   await resetDb();
-  stubPlatformJwksFetch();
+  servePlatformJwks();
 });
 
 describe("LTI Deep Linking", () => {

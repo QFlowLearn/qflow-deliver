@@ -1,6 +1,8 @@
+import { http } from "msw/http";
+import { network } from "./network";
 import { upsertLaunchRegistration } from "@longsightgroup/lti-tool";
 import { exports as workerExports } from "cloudflare:workers";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import { createHarborLtiRegistrationPath } from "../src/lti/registration-link";
 import { D1RegistrationProjectionStore } from "../src/lti/registration-projection-store";
@@ -24,7 +26,7 @@ beforeEach(async () => {
 
 describe("LTI dynamic registration", () => {
   it("round-trips signed tenant state and isolates package storage", async () => {
-    const calls = stubDynamicRegistrationPlatform();
+    const calls = serveDynamicRegistrationPlatform();
     const tenantPath = await createHarborLtiRegistrationPath(LINK_ENV, "tenant_a");
     const otherPath = await createHarborLtiRegistrationPath(LINK_ENV, "tenant_b");
 
@@ -66,7 +68,7 @@ describe("LTI dynamic registration", () => {
   });
 
   it("atomically consumes a registration session under concurrent completion", async () => {
-    const calls = stubDynamicRegistrationPlatform();
+    const calls = serveDynamicRegistrationPlatform();
     const path = await createHarborLtiRegistrationPath(LINK_ENV, "tenant_concurrent");
     expect((await startRegistration(path)).status).toBe(200);
     const token = await readSessionToken("tenant_concurrent");
@@ -85,7 +87,7 @@ describe("LTI dynamic registration", () => {
   });
 
   it("keeps protocol completion successful and reconciles a failed Harbor projection", async () => {
-    const calls = stubDynamicRegistrationPlatform();
+    const calls = serveDynamicRegistrationPlatform();
     const path = await createHarborLtiRegistrationPath(LINK_ENV, "tenant_projection_fail");
     expect((await startRegistration(path)).status).toBe(200);
     const token = await readSessionToken("tenant_projection_fail");
@@ -118,7 +120,7 @@ describe("LTI dynamic registration", () => {
   });
 
   it("reconciles package storage into Harbor projections and rejects cross-tenant ownership", async () => {
-    const calls = stubDynamicRegistrationPlatform();
+    const calls = serveDynamicRegistrationPlatform();
     const path = await createHarborLtiRegistrationPath(LINK_ENV, "tenant_reconcile");
     expect((await startRegistration(path)).status).toBe(200);
     const token = await readSessionToken("tenant_reconcile");
@@ -200,12 +202,11 @@ function discoveredProjection(issuer: string, suffix: string) {
   };
 }
 
-function stubDynamicRegistrationPlatform(): string[] {
+function serveDynamicRegistrationPlatform(): string[] {
   const calls: string[] = [];
-  vi.stubGlobal(
-    "fetch",
-    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-      const url = input instanceof Request ? input.url : input.toString();
+  network.use(
+    http.all("https://platform.harbor.test/*", async ({ request: input }) => {
+      const url = input.url;
       calls.push(url);
       if (url.endsWith("/.well-known/openid-configuration")) {
         return Response.json({
@@ -236,7 +237,7 @@ function stubDynamicRegistrationPlatform(): string[] {
         });
       }
       if (url.endsWith("/register")) {
-        const request = JSON.parse(String(init?.body)) as { scope: string };
+        const request = JSON.parse(await input.text()) as { scope: string };
         return Response.json({
           client_id: "dynamic-client",
           application_type: "web",
@@ -257,7 +258,7 @@ function stubDynamicRegistrationPlatform(): string[] {
           },
         });
       }
-      return new Response("not found", { status: 404 });
+      throw new Error(`Unhandled LTI platform request: ${input.method} ${input.url}`);
     }),
   );
   return calls;

@@ -6,7 +6,7 @@ import {
   waitOnExecutionContext,
 } from "cloudflare:test";
 import { env, exports as workerExports } from "cloudflare:workers";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import type {
   BootstrapEnvelope,
   BootstrapPayload,
@@ -24,7 +24,7 @@ import {
   type ResultExportEnvelope,
 } from "../src/queues/result-export";
 import { executeResultRemediationRequest } from "../src/workflows/result-remediation";
-import { createQueueMock } from "./queue-mock";
+import { observeQueue } from "./queue-fixture";
 import manifestXml from "../../../tests/fixtures/qti/basic-assessment/imsmanifest.xml?raw";
 import stimulusSvg from "../../../tests/fixtures/qti/basic-assessment/assets/stimulus.svg?raw";
 
@@ -195,7 +195,6 @@ function buildRuntimeEnv(input?: {
   attemptCoordinator?: DurableObjectNamespace;
   sendSubmit?: (message: SubmitFinalizationEnvelope) => Promise<void>;
   sendResultExport?: (message: ResultExportEnvelope) => Promise<void>;
-  createRemediationWorkflow?: (requestId: string) => Promise<void>;
 }): RuntimeEnv {
   const base = getBaseEnv();
   return {
@@ -207,36 +206,26 @@ function buildRuntimeEnv(input?: {
     LTI_TOOL_PRIVATE_KEY_JWK: base.LTI_TOOL_PRIVATE_KEY_JWK,
     ATTEMPT_COORDINATOR: input?.attemptCoordinator ?? base.ATTEMPT_COORDINATOR,
     ATTEMPT_RUNTIME_METRICS: base.ATTEMPT_RUNTIME_METRICS,
-    SUBMIT_FINALIZATION_QUEUE: createQueueMock<SubmitFinalizationEnvelope>({
-      send:
-        input?.sendSubmit ??
-        (async () => {
-          throw new Error("SUBMIT_FINALIZATION_QUEUE.send was not stubbed");
-        }),
-      sendBatchError: "sendBatch is not used in results-ops tests",
-    }),
-    RESULT_EXPORT_QUEUE: createQueueMock<ResultExportEnvelope>({
-      send:
+    SUBMIT_FINALIZATION_QUEUE: observeQueue<SubmitFinalizationEnvelope>(
+      env.SUBMIT_FINALIZATION_QUEUE,
+      {
+        beforeSend:
+          input?.sendSubmit ??
+          (async () => {
+            throw new Error("Unexpected submit-finalization send in this test");
+          }),
+        sendBatchError: "sendBatch is not used in results-ops tests",
+      },
+    ),
+    RESULT_EXPORT_QUEUE: observeQueue<ResultExportEnvelope>(env.RESULT_EXPORT_QUEUE, {
+      beforeSend:
         input?.sendResultExport ??
         (async () => {
-          throw new Error("RESULT_EXPORT_QUEUE.send was not stubbed");
+          throw new Error("Unexpected result-export send in this test");
         }),
       sendBatchError: "sendBatch is not used in results-ops tests",
     }),
-    RESULT_REMEDIATION_WORKFLOW: {
-      async create(options?: { id?: string; params?: { requestId: string } }) {
-        await input?.createRemediationWorkflow?.(options?.params?.requestId ?? "");
-        return {
-          id: options?.id ?? "workflow_result_remediation_test",
-        };
-      },
-      async get() {
-        throw new Error("Workflow get is not used in results-ops tests");
-      },
-      async createBatch() {
-        throw new Error("Workflow createBatch is not used in results-ops tests");
-      },
-    } as unknown as RuntimeEnv["RESULT_REMEDIATION_WORKFLOW"],
+    RESULT_REMEDIATION_WORKFLOW: env.RESULT_REMEDIATION_WORKFLOW,
   };
 }
 
@@ -371,12 +360,12 @@ async function createPendingExportState(slug: string): Promise<{
   const queuedSubmits: SubmitFinalizationEnvelope[] = [];
   const queuedExports: ResultExportEnvelope[] = [];
   const runtimeEnv = buildRuntimeEnv({
-    sendSubmit: vi.fn(async (message) => {
+    sendSubmit: async (message) => {
       queuedSubmits.push(message);
-    }),
-    sendResultExport: vi.fn(async (message) => {
+    },
+    sendResultExport: async (message) => {
       queuedExports.push(message);
-    }),
+    },
   });
 
   const receipt = await submitAttemptWithAuthoritativeMaterialization({
@@ -466,12 +455,12 @@ async function createFailedFinalizationState(slug: string): Promise<{
   const queuedSubmits: SubmitFinalizationEnvelope[] = [];
   const queuedExports: ResultExportEnvelope[] = [];
   const runtimeEnv = buildRuntimeEnv({
-    sendSubmit: vi.fn(async (message) => {
+    sendSubmit: async (message) => {
       queuedSubmits.push(message);
-    }),
-    sendResultExport: vi.fn(async (message) => {
+    },
+    sendResultExport: async (message) => {
       queuedExports.push(message);
-    }),
+    },
   });
 
   const receipt = await submitAttemptWithAuthoritativeMaterialization({
@@ -641,8 +630,8 @@ describe("results ops routes and remediation workflow", () => {
       assignmentId: "assign_results_ops_pending",
     });
     const runtimeEnv = buildRuntimeEnv({
-      sendSubmit: vi.fn(async () => {}),
-      sendResultExport: vi.fn(async () => {}),
+      sendSubmit: async () => {},
+      sendResultExport: async () => {},
     });
 
     const response = await fetchWithRuntimeEnv(
@@ -805,13 +794,9 @@ describe("results ops routes and remediation workflow", () => {
 
   it("creates one idempotent, auditable export retry request without duplicating authoritative result rows", async () => {
     const failedExport = await createFailedExportState("results-ops-export");
-    const workflowRequests: string[] = [];
     const runtimeEnv = buildRuntimeEnv({
-      sendSubmit: vi.fn(async () => {}),
-      sendResultExport: vi.fn(async () => {}),
-      createRemediationWorkflow: vi.fn(async (requestId) => {
-        workflowRequests.push(requestId);
-      }),
+      sendSubmit: async () => {},
+      sendResultExport: async () => {},
     });
 
     const retryBody = {
@@ -868,7 +853,13 @@ describe("results ops routes and remediation workflow", () => {
     }>();
 
     expect(secondPayload.request.requestId).toBe(firstPayload.request.requestId);
-    expect(workflowRequests).toEqual([firstPayload.request.requestId]);
+    const workflowBinding = runtimeEnv.RESULT_REMEDIATION_WORKFLOW;
+    if (!workflowBinding)
+      throw new Error("A local result-remediation workflow binding is required");
+    const workflow = await workflowBinding.get(firstPayload.request.requestId);
+    expect(workflow.id).toBe(firstPayload.request.requestId);
+    await workflow.sendEvent({ type: "test.execute", payload: {} });
+    await expect.poll(async () => (await workflow.status()).status).toBe("complete");
 
     const remediation = await getBaseEnv()
       .HARBOR_DB.prepare(
@@ -944,10 +935,10 @@ describe("results ops routes and remediation workflow", () => {
     });
 
     const remediationEnv = buildRuntimeEnv({
-      sendSubmit: vi.fn(async () => {}),
-      sendResultExport: vi.fn(async (message) => {
+      sendSubmit: async () => {},
+      sendResultExport: async (message) => {
         queuedExports.push(message);
-      }),
+      },
     });
 
     await executeResultRemediationRequest({

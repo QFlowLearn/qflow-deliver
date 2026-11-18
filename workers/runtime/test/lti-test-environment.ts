@@ -1,6 +1,5 @@
 import { applyD1Migrations } from "cloudflare:test";
 import { env, exports as workerExports } from "cloudflare:workers";
-import { vi } from "vitest";
 
 export const ADMIN_HEADERS = {
   "x-harbor-admin-key": "harbor-admin-local-secret",
@@ -80,13 +79,11 @@ async function deleteFromKnownTables(
 }
 
 export async function resetLtiProtocolTables(): Promise<void> {
-  vi.unstubAllGlobals();
   await applyTestMigrations();
   await deleteFromKnownTables(getTestEnv().HARBOR_DB, [...LTI_TEST_RESET_TABLES]);
 }
 
 export async function resetDb(): Promise<void> {
-  vi.unstubAllGlobals();
   const { HARBOR_DB, CONTENT_BUCKET } = getTestEnv();
   await applyTestMigrations();
   await deleteFromKnownTables(HARBOR_DB, [...LTI_TEST_RESET_TABLES]);

@@ -13,7 +13,7 @@ import type { DeliveryManifest } from "@harbor/content-model";
 import { runOutboxAlarm } from "./outbox-alarm";
 import { runPendingSubmitFinalizationRequeues } from "../src/queues/submit-finalization";
 import { processSubmitFinalizationEnvelope } from "../src/queues/submit-finalization";
-import { createQueueMock } from "./queue-mock";
+import { observeQueue } from "./queue-fixture";
 import type { SubmitFinalizationEnvelope } from "../src/queues/submit-finalization";
 
 import manifestXml from "../../../tests/fixtures/qti/basic-assessment/imsmanifest.xml?raw";
@@ -344,12 +344,15 @@ function buildDeadlineWorkerEnv(
         return undefined;
       },
     } as AnalyticsEngineDataset,
-    SUBMIT_FINALIZATION_QUEUE: createQueueMock<SubmitFinalizationEnvelope>({
-      async send(message) {
-        sent.push(message);
+    SUBMIT_FINALIZATION_QUEUE: observeQueue<SubmitFinalizationEnvelope>(
+      env.SUBMIT_FINALIZATION_QUEUE,
+      {
+        async beforeSend(message) {
+          sent.push(message);
+        },
+        sendBatchError: "sendBatch is not used by deadline auto-submit tests",
       },
-      sendBatchError: "sendBatch is not used by deadline auto-submit tests",
-    }),
+    ),
   };
 }
 

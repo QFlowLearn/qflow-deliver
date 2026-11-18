@@ -1,3 +1,5 @@
+import { http } from "msw/http";
+import { network } from "./network";
 import type {
   BootstrapPayload,
   InstructorLmsNrpsSyncResponse,
@@ -6,7 +8,7 @@ import type {
   StudentAssignmentListResponse,
 } from "@harbor/attempt-protocol";
 import { env } from "cloudflare:workers";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import { runDueLtiNrpsSyncSchedules } from "../src/lti/nrps-sync";
 import {
@@ -26,11 +28,11 @@ import {
   publishFixture,
 } from "./lti-test-fixtures";
 import { performLtiLaunch, submitLtiLaunch } from "./lti-test-launch";
-import { PLATFORM_PUBLIC_JWK, stubPlatformJwksFetch } from "./lti-test-platform";
+import { PLATFORM_PUBLIC_JWK, servePlatformJwks } from "./lti-test-platform";
 
 beforeEach(async () => {
   await resetDb();
-  stubPlatformJwksFetch();
+  servePlatformJwks();
 });
 
 describe("LTI Resource Link", () => {
@@ -154,10 +156,9 @@ describe("LTI Resource Link", () => {
     };
     let nrpsMembers = [taylorNrpsMember, jordanNrpsMember, instructorNrpsMember];
     const ltiServiceCalls: string[] = [];
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-        const requestUrl = input instanceof Request ? input.url : input.toString();
+    network.use(
+      http.all("https://platform.harbor.test/*", async ({ request: input }) => {
+        const requestUrl = input.url;
         ltiServiceCalls.push(requestUrl);
         if (requestUrl === "https://platform.harbor.test/jwks") {
           return Response.json({ keys: [PLATFORM_PUBLIC_JWK] });
@@ -172,7 +173,7 @@ describe("LTI Resource Link", () => {
         }
 
         if (requestUrl === "https://platform.harbor.test/nrps/context/memberships") {
-          const headers = input instanceof Request ? input.headers : new Headers(init?.headers);
+          const headers = input.headers;
           expect(headers.get("authorization")).toBe("Bearer nrps-token");
           return Response.json({
             id: "https://platform.harbor.test/nrps/context/memberships",
@@ -185,7 +186,7 @@ describe("LTI Resource Link", () => {
           });
         }
 
-        return new Response("not found", { status: 404 });
+        throw new Error(`Unhandled LTI platform request: ${input.method} ${input.url}`);
       }),
     );
     const nrpsSyncResponse = await postJson("/api/instructor/lms/nrps-sync", {

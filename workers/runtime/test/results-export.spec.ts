@@ -6,7 +6,7 @@ import {
   waitOnExecutionContext,
 } from "cloudflare:test";
 import { env, exports as workerExports } from "cloudflare:workers";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import type {
   BootstrapEnvelope,
   BootstrapPayload,
@@ -26,7 +26,7 @@ import {
   RESULT_EXPORT_QUEUE_NAME,
   type ResultExportEnvelope,
 } from "../src/queues/result-export";
-import { createQueueMock } from "./queue-mock";
+import { observeQueue } from "./queue-fixture";
 import manifestXml from "../../../tests/fixtures/qti/basic-assessment/imsmanifest.xml?raw";
 import stimulusSvg from "../../../tests/fixtures/qti/basic-assessment/assets/stimulus.svg?raw";
 
@@ -303,12 +303,15 @@ function buildRuntimeEnv(input: {
     LTI_TOOL_PRIVATE_KEY_JWK: base.LTI_TOOL_PRIVATE_KEY_JWK,
     ATTEMPT_COORDINATOR: base.ATTEMPT_COORDINATOR,
     ATTEMPT_RUNTIME_METRICS: base.ATTEMPT_RUNTIME_METRICS,
-    SUBMIT_FINALIZATION_QUEUE: createQueueMock<SubmitFinalizationEnvelope>({
-      send: input.sendSubmit,
-      sendBatchError: "sendBatch is not used in results-export tests",
-    }),
-    RESULT_EXPORT_QUEUE: createQueueMock<ResultExportEnvelope>({
-      send: input.sendResultExport,
+    SUBMIT_FINALIZATION_QUEUE: observeQueue<SubmitFinalizationEnvelope>(
+      env.SUBMIT_FINALIZATION_QUEUE,
+      {
+        beforeSend: input.sendSubmit,
+        sendBatchError: "sendBatch is not used in results-export tests",
+      },
+    ),
+    RESULT_EXPORT_QUEUE: observeQueue<ResultExportEnvelope>(env.RESULT_EXPORT_QUEUE, {
+      beforeSend: input.sendResultExport,
       sendBatchError: "sendBatch is not used in results-export tests",
     }),
   };
@@ -434,12 +437,12 @@ describe("result export queue flow", () => {
     const queuedSubmits: SubmitFinalizationEnvelope[] = [];
     const queuedExports: ResultExportEnvelope[] = [];
     const runtimeEnv = buildRuntimeEnv({
-      sendSubmit: vi.fn(async (message) => {
+      sendSubmit: async (message) => {
         queuedSubmits.push(message);
-      }),
-      sendResultExport: vi.fn(async (message) => {
+      },
+      sendResultExport: async (message) => {
         queuedExports.push(message);
-      }),
+      },
     });
 
     const receipt = await submitAttemptWithAuthoritativeMaterialization({
@@ -499,12 +502,12 @@ describe("result export queue flow", () => {
     const queuedSubmits: SubmitFinalizationEnvelope[] = [];
     const queuedExports: ResultExportEnvelope[] = [];
     const runtimeEnv = buildRuntimeEnv({
-      sendSubmit: vi.fn(async (message) => {
+      sendSubmit: async (message) => {
         queuedSubmits.push(message);
-      }),
-      sendResultExport: vi.fn(async (message) => {
+      },
+      sendResultExport: async (message) => {
         queuedExports.push(message);
-      }),
+      },
     });
 
     const receipt = await submitAttemptWithAuthoritativeMaterialization({
@@ -610,12 +613,12 @@ describe("result export queue flow", () => {
     const queuedSubmits: SubmitFinalizationEnvelope[] = [];
     const queuedExports: ResultExportEnvelope[] = [];
     const runtimeEnv = buildRuntimeEnv({
-      sendSubmit: vi.fn(async (message) => {
+      sendSubmit: async (message) => {
         queuedSubmits.push(message);
-      }),
-      sendResultExport: vi.fn(async (message) => {
+      },
+      sendResultExport: async (message) => {
         queuedExports.push(message);
-      }),
+      },
     });
 
     const receipt = await submitAttemptWithAuthoritativeMaterialization({
@@ -719,12 +722,12 @@ describe("result export queue flow", () => {
     const queuedSubmits: SubmitFinalizationEnvelope[] = [];
     const queuedExports: ResultExportEnvelope[] = [];
     const runtimeEnv = buildRuntimeEnv({
-      sendSubmit: vi.fn(async (message) => {
+      sendSubmit: async (message) => {
         queuedSubmits.push(message);
-      }),
-      sendResultExport: vi.fn(async (message) => {
+      },
+      sendResultExport: async (message) => {
         queuedExports.push(message);
-      }),
+      },
     });
 
     const receipt = await submitAttemptWithAuthoritativeMaterialization({

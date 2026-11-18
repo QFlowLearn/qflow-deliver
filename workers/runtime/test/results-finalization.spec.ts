@@ -6,7 +6,7 @@ import {
   waitOnExecutionContext,
 } from "cloudflare:test";
 import { env, exports as workerExports } from "cloudflare:workers";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import type {
   BootstrapEnvelope,
   BootstrapPayload,
@@ -20,7 +20,7 @@ import {
   SUBMIT_FINALIZATION_QUEUE_NAME,
   type SubmitFinalizationEnvelope,
 } from "../src/queues/submit-finalization";
-import { createQueueMock } from "./queue-mock";
+import { observeQueue } from "./queue-fixture";
 import manifestXml from "../../../tests/fixtures/qti/basic-assessment/imsmanifest.xml?raw";
 import stimulusSvg from "../../../tests/fixtures/qti/basic-assessment/assets/stimulus.svg?raw";
 
@@ -203,10 +203,13 @@ function buildRuntimeEnv(input: {
     LTI_TOOL_PRIVATE_KEY_JWK: base.LTI_TOOL_PRIVATE_KEY_JWK,
     ATTEMPT_COORDINATOR: base.ATTEMPT_COORDINATOR,
     ATTEMPT_RUNTIME_METRICS: base.ATTEMPT_RUNTIME_METRICS,
-    SUBMIT_FINALIZATION_QUEUE: createQueueMock<SubmitFinalizationEnvelope>({
-      send: input.send,
-      sendBatchError: "sendBatch is not used in results-finalization tests",
-    }),
+    SUBMIT_FINALIZATION_QUEUE: observeQueue<SubmitFinalizationEnvelope>(
+      env.SUBMIT_FINALIZATION_QUEUE,
+      {
+        beforeSend: input.send,
+        sendBatchError: "sendBatch is not used in results-finalization tests",
+      },
+    ),
   };
 }
 
@@ -324,9 +327,9 @@ describe("authoritative result finalization", () => {
     const payload = await launchPreviewAttempt();
     const queued: SubmitFinalizationEnvelope[] = [];
     const runtimeEnv = buildRuntimeEnv({
-      send: vi.fn(async (message) => {
+      send: async (message) => {
         queued.push(message);
-      }),
+      },
     });
 
     const responseChanged = await postAttemptEvent({
@@ -424,7 +427,7 @@ describe("authoritative result finalization", () => {
   it("rejects forged client SCORE outcomes when the submitted response is wrong", async () => {
     const payload = await launchPreviewAttempt();
     const runtimeEnv = buildRuntimeEnv({
-      send: vi.fn(async () => undefined),
+      send: async () => undefined,
     });
 
     const responseChanged = await postAttemptEvent({
@@ -525,7 +528,7 @@ describe("authoritative result finalization", () => {
       xml: uploadItemXml,
     });
     const runtimeEnv = buildRuntimeEnv({
-      send: vi.fn(async () => undefined),
+      send: async () => undefined,
     });
 
     const submitResponse = await postAttemptEvent({
@@ -586,9 +589,9 @@ describe("authoritative result finalization", () => {
     const payload = await launchPreviewAttempt();
     const queued: SubmitFinalizationEnvelope[] = [];
     const runtimeEnv = buildRuntimeEnv({
-      send: vi.fn(async (message) => {
+      send: async (message) => {
         queued.push(message);
-      }),
+      },
     });
 
     const submitResponse = await postAttemptEvent({
@@ -731,9 +734,9 @@ describe("authoritative result finalization", () => {
     });
     const queued: SubmitFinalizationEnvelope[] = [];
     const runtimeEnv = buildRuntimeEnv({
-      send: vi.fn(async (message) => {
+      send: async (message) => {
         queued.push(message);
-      }),
+      },
     });
 
     const submitResponse = await postAttemptEvent({

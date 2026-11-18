@@ -21,7 +21,7 @@ import {
   type SubmitFinalizationEnvelope,
 } from "../src/queues/submit-finalization";
 import { createAttemptEntry } from "../src/launch/create-preview-attempt";
-import { createQueueMock } from "./queue-mock";
+import { observeQueue } from "./queue-fixture";
 
 export const assessmentTestManifestXml = `<?xml version="1.0" encoding="UTF-8"?>
 <manifest xmlns="http://www.imsglobal.org/xsd/qti/qtiv3p0/imscp_v1p1" identifier="pkg-history">
@@ -201,10 +201,13 @@ function buildRuntimeEnv(input: {
     LTI_TOOL_PRIVATE_KEY_JWK: base.LTI_TOOL_PRIVATE_KEY_JWK,
     ATTEMPT_COORDINATOR: base.ATTEMPT_COORDINATOR,
     ATTEMPT_RUNTIME_METRICS: base.ATTEMPT_RUNTIME_METRICS,
-    SUBMIT_FINALIZATION_QUEUE: createQueueMock<SubmitFinalizationEnvelope>({
-      send: input.send,
-      sendBatchError: "sendBatch is not used in history tests",
-    }),
+    SUBMIT_FINALIZATION_QUEUE: observeQueue<SubmitFinalizationEnvelope>(
+      env.SUBMIT_FINALIZATION_QUEUE,
+      {
+        beforeSend: input.send,
+        sendBatchError: "sendBatch is not used in history tests",
+      },
+    ),
   };
 }
 

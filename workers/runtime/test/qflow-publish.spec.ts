@@ -1,3 +1,5 @@
+import { http } from "msw/http";
+import { network } from "./network";
 import JSZip from "jszip";
 import { applyD1Migrations } from "cloudflare:test";
 import { env, exports as workerExports } from "cloudflare:workers";
@@ -115,10 +117,7 @@ async function invokePublishHandler(invoke: () => Promise<Response>): Promise<Re
   }
 }
 
-async function postSignedQflowPublish(
-  body: Record<string, unknown>,
-  fetcher: typeof fetch,
-): Promise<Response> {
+async function postSignedQflowPublish(body: Record<string, unknown>): Promise<Response> {
   const rawBody = JSON.stringify(body);
   const request = new Request("https://harbor.local/internal/qflow/publish", {
     method: "POST",
@@ -134,7 +133,6 @@ async function postSignedQflowPublish(
       request,
       env: getRouteEnv(),
       url: new URL(request.url),
-      packageFetcher: fetcher,
     }),
   );
 }
@@ -204,20 +202,21 @@ describe("qflow publish runtime behavior", () => {
     await grantQflowPublishEntitlement("tenant_qflow_publish");
     const packageUrl =
       "https://qflow.local/api/assessments/qflow_assessment_01/package?format=qti3";
-    const fetchRequests: Request[] = [];
-    const fetcher: typeof fetch = async (input) => {
-      const request = input instanceof Request ? input : new Request(input);
-      fetchRequests.push(request);
+    const fetchRequests: Array<{ url: string; headers: Headers }> = [];
+    network.use(
+      http.get("https://qflow.local/api/assessments/qflow_assessment_01/package", ({ request }) => {
+        fetchRequests.push({ url: request.url, headers: new Headers(request.headers) });
 
-      return new Response(bodyFromBytes(packageBytes), {
-        status: 200,
-        headers: {
-          "content-type": "application/zip",
-          "x-qflow-export-warning-count": "1",
-          "x-qflow-export-warning-codes": "missing_alt_text",
-        },
-      });
-    };
+        return new Response(bodyFromBytes(packageBytes), {
+          status: 200,
+          headers: {
+            "content-type": "application/zip",
+            "x-qflow-export-warning-count": "1",
+            "x-qflow-export-warning-codes": "missing_alt_text",
+          },
+        });
+      }),
+    );
 
     const body = {
       publishId: "qpub_pull_01",
@@ -232,7 +231,7 @@ describe("qflow publish runtime behavior", () => {
       issuedAt: "2026-04-28T10:00:00.000Z",
     };
 
-    const response = await postSignedQflowPublish(body, fetcher);
+    const response = await postSignedQflowPublish(body);
     expect(response.status).toBe(201);
     const payload = await response.json<QflowPublishResponse>();
 
@@ -382,7 +381,7 @@ describe("qflow publish runtime behavior", () => {
       latest_publish_request_id: "qpub_pull_01",
     });
 
-    const duplicateResponse = await postSignedQflowPublish(body, fetcher);
+    const duplicateResponse = await postSignedQflowPublish(body);
     expect(duplicateResponse.status).toBe(200);
     const duplicatePayload = await duplicateResponse.json<QflowPublishResponse>();
     expect(duplicatePayload.version.assessmentVersionId).toBe(payload.version.assessmentVersionId);
@@ -424,13 +423,18 @@ describe("qflow publish runtime behavior", () => {
       tenantId: "tenant_qflow_publish",
     });
     await grantQflowPublishEntitlement("tenant_qflow_publish");
-    const fetcher: typeof fetch = async () =>
-      new Response(bodyFromBytes(packageBytes), {
-        status: 200,
-        headers: {
-          "content-type": "application/zip",
-        },
-      });
+    network.use(
+      http.get(
+        "https://qflow.local/api/assessments/qflow_assessment_01/package",
+        () =>
+          new Response(bodyFromBytes(packageBytes), {
+            status: 200,
+            headers: {
+              "content-type": "application/zip",
+            },
+          }),
+      ),
+    );
     const body = {
       publishId: "qpub_conflict_01",
       qflowTenantId: "qflow_tenant_01",
@@ -438,16 +442,13 @@ describe("qflow publish runtime behavior", () => {
       packageUrl: "https://qflow.local/api/assessments/qflow_assessment_01/package?format=qti3",
     };
 
-    const firstResponse = await postSignedQflowPublish(body, fetcher);
+    const firstResponse = await postSignedQflowPublish(body);
     expect(firstResponse.status).toBe(201);
 
-    const conflictResponse = await postSignedQflowPublish(
-      {
-        ...body,
-        packageUrl: "https://qflow.local/api/assessments/qflow_assessment_02/package?format=qti3",
-      },
-      fetcher,
-    );
+    const conflictResponse = await postSignedQflowPublish({
+      ...body,
+      packageUrl: "https://qflow.local/api/assessments/qflow_assessment_02/package?format=qti3",
+    });
     expect(conflictResponse.status).toBe(409);
     expect(await conflictResponse.json()).toEqual({
       error: "QFlow publishId has already been used for a different signed request",
@@ -457,19 +458,12 @@ describe("qflow publish runtime behavior", () => {
   });
 
   it("rejects unlinked qflow tenants before fetching a qflow package or creating Harbor publish rows", async () => {
-    const fetcher: typeof fetch = async () => {
-      throw new Error("qflow package should not be fetched for non-subscribers");
-    };
-
-    const response = await postSignedQflowPublish(
-      {
-        publishId: "qpub_no_entitlement_01",
-        qflowTenantId: "qflow_tenant_01",
-        qflowAssessmentId: "qflow_assessment_01",
-        packageUrl: "https://qflow.local/api/assessments/qflow_assessment_01/package?format=qti3",
-      },
-      fetcher,
-    );
+    const response = await postSignedQflowPublish({
+      publishId: "qpub_no_entitlement_01",
+      qflowTenantId: "qflow_tenant_01",
+      qflowAssessmentId: "qflow_assessment_01",
+      packageUrl: "https://qflow.local/api/assessments/qflow_assessment_01/package?format=qti3",
+    });
 
     expect(response.status).toBe(403);
     expect(await response.json()).toEqual({
@@ -484,19 +478,13 @@ describe("qflow publish runtime behavior", () => {
       qflowTenantId: "qflow_tenant_without_feature",
       tenantId: "tenant_without_feature",
     });
-    const fetcher: typeof fetch = async () => {
-      throw new Error("qflow package should not be fetched without entitlement");
-    };
 
-    const response = await postSignedQflowPublish(
-      {
-        publishId: "qpub_no_feature_01",
-        qflowTenantId: "qflow_tenant_without_feature",
-        qflowAssessmentId: "qflow_assessment_01",
-        packageUrl: "https://qflow.local/api/assessments/qflow_assessment_01/package?format=qti3",
-      },
-      fetcher,
-    );
+    const response = await postSignedQflowPublish({
+      publishId: "qpub_no_feature_01",
+      qflowTenantId: "qflow_tenant_without_feature",
+      qflowAssessmentId: "qflow_assessment_01",
+      packageUrl: "https://qflow.local/api/assessments/qflow_assessment_01/package?format=qti3",
+    });
 
     expect(response.status).toBe(403);
     expect(await response.json()).toEqual({

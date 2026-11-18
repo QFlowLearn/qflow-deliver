@@ -1,5 +1,6 @@
+import { http } from "msw/http";
+import { network } from "./network";
 import { importJWK, SignJWT } from "jose";
-import { vi } from "vitest";
 
 export const PLATFORM_PRIVATE_JWK = {
   kty: "EC",
@@ -22,17 +23,11 @@ export const PLATFORM_PUBLIC_JWK = {
   kid: "platform-test-1",
 } as const;
 
-export function stubPlatformJwksFetch(): void {
-  vi.stubGlobal(
-    "fetch",
-    vi.fn(async (input: RequestInfo | URL) => {
-      const requestUrl = input instanceof Request ? input.url : input.toString();
-      if (requestUrl === "https://platform.harbor.test/jwks") {
-        return Response.json({ keys: [PLATFORM_PUBLIC_JWK] });
-      }
-
-      return new Response("not found", { status: 404 });
-    }),
+export function servePlatformJwks(): void {
+  network.use(
+    http.get("https://platform.harbor.test/jwks", () =>
+      Response.json({ keys: [PLATFORM_PUBLIC_JWK] }),
+    ),
   );
 }
 

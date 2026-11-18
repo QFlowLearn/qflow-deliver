@@ -1,3 +1,5 @@
+import { http } from "msw/http";
+import { network } from "./network";
 import { exports as workerExports } from "cloudflare:workers";
 import {
   LTI_CLAIM_AGS_ENDPOINT,
@@ -5,7 +7,7 @@ import {
   LTI_CLAIM_TARGET_LINK_URI,
 } from "@longsightgroup/lti-tool";
 import { createMockLTIPayload, testSession } from "@longsightgroup/lti-tool/testing";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { syncLtiNrpsMembersForAttempt } from "../src/lti/nrps-sync";
 import { publishLtiOutcomeForAttemptResult } from "../src/lti/outcomes";
 import {
@@ -327,11 +329,13 @@ describe("lti outcome delivery", () => {
   it("submits finalized scores through lti-tool AGS and records delivery", async () => {
     const seeded = await seedLtiResult();
     const serviceCalls: Array<{ url: string; body: unknown }> = [];
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-        const url = input instanceof Request ? input.url : input.toString();
-        serviceCalls.push({ url, body: init?.body ?? null });
+    network.use(
+      http.all("https://platform.harbor.test/*", async ({ request: input }) => {
+        const url = input.url;
+        serviceCalls.push({
+          url,
+          body: new TextDecoder().decode(await input.clone().arrayBuffer()),
+        });
         if (url === "https://platform.harbor.test/token") {
           return Response.json({
             access_token: "mock-token",
@@ -344,7 +348,7 @@ describe("lti outcome delivery", () => {
           return new Response(null, { status: 201 });
         }
 
-        return new Response("not found", { status: 404 });
+        throw new Error(`Unhandled LTI platform request: ${input.method} ${input.url}`);
       }),
     );
 
@@ -398,10 +402,9 @@ describe("lti outcome delivery", () => {
   it("records safe structured AGS score failures and retries idempotently", async () => {
     const seeded = await seedLtiResult();
     let scorePublishAttempts = 0;
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (input: RequestInfo | URL) => {
-        const url = input instanceof Request ? input.url : input.toString();
+    network.use(
+      http.all("https://platform.harbor.test/*", async ({ request: input }) => {
+        const url = input.url;
         if (url === "https://platform.harbor.test/token") {
           return Response.json({
             access_token: "mock-token",
@@ -426,7 +429,7 @@ describe("lti outcome delivery", () => {
           );
         }
 
-        return new Response("not found", { status: 404 });
+        throw new Error(`Unhandled LTI platform request: ${input.method} ${input.url}`);
       }),
     );
 
@@ -502,10 +505,9 @@ describe("lti outcome delivery", () => {
 
   it("proxies AGS line items and NRPS members through lti-tool", async () => {
     await seedLtiResult();
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (input: RequestInfo | URL) => {
-        const url = input instanceof Request ? input.url : input.toString();
+    network.use(
+      http.all("https://platform.harbor.test/*", async ({ request: input }) => {
+        const url = input.url;
         if (url === "https://platform.harbor.test/token") {
           return Response.json({
             access_token: "mock-token",
@@ -543,7 +545,7 @@ describe("lti outcome delivery", () => {
           });
         }
 
-        return new Response("not found", { status: 404 });
+        throw new Error(`Unhandled LTI platform request: ${input.method} ${input.url}`);
       }),
     );
 
@@ -582,10 +584,9 @@ describe("lti outcome delivery", () => {
 
   it("returns safe structured NRPS proxy failures", async () => {
     await seedLtiResult();
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (input: RequestInfo | URL) => {
-        const url = input instanceof Request ? input.url : input.toString();
+    network.use(
+      http.all("https://platform.harbor.test/*", async ({ request: input }) => {
+        const url = input.url;
         if (url === "https://platform.harbor.test/token") {
           return Response.json({
             access_token: "mock-token",
@@ -606,7 +607,7 @@ describe("lti outcome delivery", () => {
           );
         }
 
-        return new Response("not found", { status: 404 });
+        throw new Error(`Unhandled LTI platform request: ${input.method} ${input.url}`);
       }),
     );
 
@@ -625,10 +626,9 @@ describe("lti outcome delivery", () => {
   it("persists safe structured NRPS sync failures and permits a later retry", async () => {
     const seeded = await seedLtiResult();
     let serviceUnavailable = true;
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (input: RequestInfo | URL) => {
-        const url = input instanceof Request ? input.url : input.toString();
+    network.use(
+      http.all("https://platform.harbor.test/*", async ({ request: input }) => {
+        const url = input.url;
         if (url === "https://platform.harbor.test/token") {
           return Response.json({
             access_token: "mock-token",
@@ -660,7 +660,7 @@ describe("lti outcome delivery", () => {
           );
         }
 
-        return new Response("not found", { status: 404 });
+        throw new Error(`Unhandled LTI platform request: ${input.method} ${input.url}`);
       }),
     );
 

@@ -2,15 +2,11 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import { countRows, get, postForm, resetDb, tableExists } from "./lti-test-environment";
 import { createRegistration } from "./lti-test-fixtures";
-import {
-  extractAuthorizeParams,
-  issueSignedIdToken,
-  stubPlatformJwksFetch,
-} from "./lti-test-platform";
+import { extractAuthorizeParams, issueSignedIdToken, servePlatformJwks } from "./lti-test-platform";
 
 beforeEach(async () => {
   await resetDb();
-  stubPlatformJwksFetch();
+  servePlatformJwks();
 });
 
 describe("LTI login and routing", () => {

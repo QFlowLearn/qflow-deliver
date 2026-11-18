@@ -21,7 +21,7 @@ import {
   toAnalyticsEnginePoint,
 } from "../src/observability/attempt-runtime-metrics";
 import type { SubmitFinalizationEnvelope } from "../src/queues/submit-finalization";
-import { createQueueMock } from "./queue-mock";
+import { observeQueue } from "./queue-fixture";
 import manifestXml from "../../../tests/fixtures/qti/basic-assessment/imsmanifest.xml?raw";
 import itemXml from "../../../tests/fixtures/qti/basic-assessment/items/item-1.xml?raw";
 import stimulusSvg from "../../../tests/fixtures/qti/basic-assessment/assets/stimulus.svg?raw";
@@ -237,13 +237,16 @@ function buildRuntimeEnv(input?: {
           points.push(point ?? {});
         },
       } as AnalyticsEngineDataset,
-      SUBMIT_FINALIZATION_QUEUE: createQueueMock<SubmitFinalizationEnvelope>({
-        async send(message) {
-          queued.push(message);
-          await input?.onSend?.(message);
+      SUBMIT_FINALIZATION_QUEUE: observeQueue<SubmitFinalizationEnvelope>(
+        env.SUBMIT_FINALIZATION_QUEUE,
+        {
+          async beforeSend(message) {
+            queued.push(message);
+            await input?.onSend?.(message);
+          },
+          sendBatchError: "sendBatch is not used in phase 4 tests",
         },
-        sendBatchError: "sendBatch is not used in phase 4 tests",
-      }),
+      ),
     },
     points,
     queued,

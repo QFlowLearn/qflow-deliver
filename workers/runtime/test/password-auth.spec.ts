@@ -1,20 +1,35 @@
 import { applyD1Migrations } from "cloudflare:test";
 import { env, exports as workerExports } from "cloudflare:workers";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 interface TestEnv {
   HARBOR_DB: D1Database;
   HARBOR_ADMIN_KEY: string;
   HARBOR_PASSWORD_RESET_FROM_EMAIL?: string;
   HARBOR_PUBLIC_ORIGIN?: string;
-  EMAIL?: {
-    send: ReturnType<typeof vi.fn>;
-  };
+  EMAIL?: SendEmail;
   TEST_MIGRATIONS: Array<{ name: string; queries: string[] }>;
 }
 
 function getTestEnv(): TestEnv {
   return env as unknown as TestEnv;
+}
+
+const nativeEmail = env.EMAIL;
+
+function observeResetEmails(): EmailMessage[] {
+  const binding = nativeEmail;
+  if (!binding) throw new Error("A local email binding is required");
+  const messages: EmailMessage[] = [];
+  getTestEnv().EMAIL = {
+    async send(message: EmailMessage | EmailMessageBuilder) {
+      if ("subject" in message) return binding.send(message);
+      const result = await binding.send(message);
+      messages.push(message);
+      return result;
+    },
+  };
+  return messages;
 }
 
 async function resetDb(): Promise<void> {
@@ -44,7 +59,7 @@ async function resetDb(): Promise<void> {
     await HARBOR_DB.exec(`${deleteStatements.join("; ")};`);
   }
 
-  getTestEnv().EMAIL = undefined;
+  getTestEnv().EMAIL = nativeEmail;
 }
 
 function postJson(path: string, body: unknown, headers: HeadersInit = {}): Promise<Response> {
@@ -141,8 +156,7 @@ describe("password auth", () => {
 
   it("sends reset email without disclosing whether the account exists", async () => {
     await createPasswordAccount();
-    const send = vi.fn().mockResolvedValue({});
-    getTestEnv().EMAIL = { send };
+    const messages = observeResetEmails();
     getTestEnv().HARBOR_PASSWORD_RESET_FROM_EMAIL = "no-reply@deliver.example.test";
     getTestEnv().HARBOR_PUBLIC_ORIGIN = "https://deliver.example.test";
 
@@ -150,15 +164,15 @@ describe("password auth", () => {
       usernameOrEmail: "morgan@example.edu",
     });
     expect(response.status).toBe(200);
-    expect(send).toHaveBeenCalledTimes(1);
-    expect(send.mock.calls[0][0]).toMatchObject({
+    expect(messages).toHaveLength(1);
+    expect(messages[0]).toMatchObject({
       from: "no-reply@deliver.example.test",
       to: "morgan@example.edu",
     });
-    expect(readEmailMessageText(send.mock.calls[0][0])).toContain(
+    expect(readEmailMessageText(messages[0])).toContain(
       "https://deliver.example.test/reset-password",
     );
-    expect(readEmailMessageText(send.mock.calls[0][0])).toContain(
+    expect(readEmailMessageText(messages[0])).toContain(
       "Subject: Reset your QFlowLearn Delivery password",
     );
 
@@ -166,13 +180,12 @@ describe("password auth", () => {
       usernameOrEmail: "missing@example.edu",
     });
     expect(unknownResponse.status).toBe(200);
-    expect(send).toHaveBeenCalledTimes(1);
+    expect(messages).toHaveLength(1);
   });
 
   it("throttles reset email requests while preserving the generic response", async () => {
     await createPasswordAccount();
-    const send = vi.fn().mockResolvedValue({});
-    getTestEnv().EMAIL = { send };
+    const messages = observeResetEmails();
     getTestEnv().HARBOR_PASSWORD_RESET_FROM_EMAIL = "no-reply@deliver.example.test";
     getTestEnv().HARBOR_PUBLIC_ORIGIN = "https://deliver.example.test";
 
@@ -187,13 +200,12 @@ describe("password auth", () => {
       usernameOrEmail: "morgan@example.edu",
     });
     expect(throttledResponse.status).toBe(200);
-    expect(send).toHaveBeenCalledTimes(3);
+    expect(messages).toHaveLength(3);
   });
 
   it("resets a password once and invalidates sibling reset tokens", async () => {
     await createPasswordAccount();
-    const send = vi.fn().mockResolvedValue({});
-    getTestEnv().EMAIL = { send };
+    const messages = observeResetEmails();
     getTestEnv().HARBOR_PASSWORD_RESET_FROM_EMAIL = "no-reply@deliver.example.test";
     getTestEnv().HARBOR_PUBLIC_ORIGIN = "https://deliver.example.test";
 
@@ -203,8 +215,8 @@ describe("password auth", () => {
     await postJson("/api/auth/password/forgot", {
       usernameOrEmail: "morgan@example.edu",
     });
-    const firstToken = extractResetToken(send.mock.calls[0][0]);
-    const secondToken = extractResetToken(send.mock.calls[1][0]);
+    const firstToken = extractResetToken(messages[0]);
+    const secondToken = extractResetToken(messages[1]);
 
     const resetResponse = await postJson("/api/auth/password/reset", {
       token: secondToken,

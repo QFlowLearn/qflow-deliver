@@ -3,11 +3,11 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { getHarborLtiTool } from "../src/lti/tool";
 import { get, getTestEnv, postJson, resetDb } from "./lti-test-environment";
 import { createRegistration } from "./lti-test-fixtures";
-import { stubPlatformJwksFetch } from "./lti-test-platform";
+import { servePlatformJwks } from "./lti-test-platform";
 
 beforeEach(async () => {
   await resetDb();
-  stubPlatformJwksFetch();
+  servePlatformJwks();
 });
 
 describe("lti-tool configuration", () => {

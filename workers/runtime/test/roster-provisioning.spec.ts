@@ -314,7 +314,7 @@ describe("roster provisioning contracts", () => {
       activeSectionCount: 0,
     });
 
-    const adaLearnerResponse = await get("/api/instructor/learners?search=Ada");
+    const adaLearnerResponse = await get("/api/instructor/learners?search=Ada%20Lovelace");
     expect(adaLearnerResponse.status).toBe(200);
     const adaLearner = await adaLearnerResponse.json<InstructorLearnersResponse>();
     expect(adaLearner.learners).toHaveLength(1);

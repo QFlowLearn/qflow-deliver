@@ -2,7 +2,29 @@
 // and a pausable adapter that forwards queries to the real local D1 database.
 import { AttemptDurableObject as RuntimeAttempt } from "../src/attempts/attempt-durable-object";
 import type { Env } from "../src/env";
-export { default, ResultRemediationWorkflow } from "../src/index";
+import { ResultRemediationWorkflow as RuntimeRemediation } from "../src/workflows/result-remediation";
+import type { ResultRemediationWorkflowParams } from "../src/workflows/result-remediation";
+import type { WorkflowEvent, WorkflowStep } from "cloudflare:workers";
+import runtimeWorker from "../src/index";
+import { captureQueueDelivery } from "./native-queue-sink";
+
+export default {
+  ...runtimeWorker,
+  async queue(batch: MessageBatch<unknown>, env: Env): Promise<void> {
+    await captureQueueDelivery(batch, env.HARBOR_DB);
+  },
+};
+
+/** Hold a native workflow at a test event before executing the production steps. */
+export class ResultRemediationWorkflow extends RuntimeRemediation {
+  override async run(
+    event: Readonly<WorkflowEvent<ResultRemediationWorkflowParams>>,
+    step: WorkflowStep,
+  ) {
+    await step.waitForEvent("authorize test remediation", { type: "test.execute" });
+    return super.run(event, step);
+  }
+}
 
 class QueryGate {
   count = 0;

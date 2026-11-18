@@ -31,7 +31,7 @@ import {
   runPendingSubmitFinalizationRequeues,
   type SubmitFinalizationEnvelope,
 } from "../src/queues/submit-finalization";
-import { createQueueMock } from "./queue-mock";
+import { observeQueue } from "./queue-fixture";
 import { commitAttemptEvent as commitThroughRoute } from "../src/routes/attempt-events";
 import itemXml from "../../../tests/fixtures/qti/basic-assessment/items/item-1.xml?raw";
 import stimulusSvg from "../../../tests/fixtures/qti/basic-assessment/assets/stimulus.svg?raw";
@@ -1296,12 +1296,15 @@ describe("durable save confirmation outbox", () => {
       env: {
         HARBOR_DB: db,
         ATTEMPT_RUNTIME_METRICS: getTestEnv().ATTEMPT_RUNTIME_METRICS,
-        SUBMIT_FINALIZATION_QUEUE: createQueueMock<SubmitFinalizationEnvelope>({
-          async send(message) {
-            queued.push(message);
+        SUBMIT_FINALIZATION_QUEUE: observeQueue<SubmitFinalizationEnvelope>(
+          env.SUBMIT_FINALIZATION_QUEUE,
+          {
+            async beforeSend(message) {
+              queued.push(message);
+            },
+            sendBatchError: "Outbox requeue uses individual messages",
           },
-          sendBatchError: "Outbox requeue uses individual messages",
-        }),
+        ),
       },
     });
     expect(requeued).toMatchObject({ queuedCount: 1, failedCount: 0 });

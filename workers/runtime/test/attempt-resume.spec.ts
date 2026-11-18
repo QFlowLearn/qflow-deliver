@@ -1,3 +1,5 @@
+import { http } from "msw/http";
+import { network, fetchFromTestOrigin } from "./network";
 import JSZip from "jszip";
 import { beforeEach, describe, expect, it } from "vitest";
 import { env, exports as workerExports } from "cloudflare:workers";
@@ -637,16 +639,19 @@ describe("attempt recovery seams", () => {
       store: createMemoryAttemptJournalStore(),
       now: () => "2026-03-26T23:06:00.000Z",
     });
-    const fetchImpl: typeof fetch = async () =>
-      Response.json(
-        {
-          error: "Keyword translation language is not currently entitled for this attempt",
-          highestCommittedSequence: 0,
-          expectedNextSequence: 1,
-          deliveryPreferences: { keywordTranslationLanguage: "fr-CA" },
-        },
-        { status: 409 },
-      );
+    network.use(
+      http.post(`https://harbor.local/api/attempts/${attemptId}/events`, () =>
+        Response.json(
+          {
+            error: "Keyword translation language is not currently entitled for this attempt",
+            highestCommittedSequence: 0,
+            expectedNextSequence: 1,
+            deliveryPreferences: { keywordTranslationLanguage: "fr-CA" },
+          },
+          { status: 409 },
+        ),
+      ),
+    );
     const client = createAttemptClient({
       attemptId,
       clientSessionId: "client_keyword_language_rejected",
@@ -662,7 +667,7 @@ describe("attempt recovery seams", () => {
         deliveryPreferences: { keywordTranslationLanguage: "fr-CA" },
       },
       journal,
-      transport: createFetchAttemptTransport(fetchImpl),
+      transport: createFetchAttemptTransport(fetchFromTestOrigin),
       createId: (() => {
         const ids = ["evt_keyword_language_rejected", "idem_keyword_language_rejected"];
         return () => ids.shift() ?? crypto.randomUUID();

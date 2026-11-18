@@ -8,5 +8,14 @@
     "playwright-report/**",
     "test-results/**",
     "workers/runtime/test-env.d.ts"
-  ]
+  ],
+  "jsPlugins": [
+    {
+      "name": "landmines-testing",
+      "specifier": "@interfere/landmines/testing"
+    }
+  ],
+  "rules": {
+    "landmines-testing/no-test-doubles": "error"
+  }
 }
