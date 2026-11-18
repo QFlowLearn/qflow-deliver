@@ -104,35 +104,69 @@ for (const role of ["assessment-manager", "invigilator", "scorer"] as const) {
       if (outgoing.method() === "GET" && outgoing.url().includes("/api/instructor/"))
         readRequests.push(new URL(outgoing.url()).pathname);
     });
-    await page.goto("/roster");
-    await expect(page.getByTestId(`roster-row-${learnerId}`)).toBeVisible();
-    const capabilityResponse = await page.request.get(
-      `/api/instructor/assignments/${assignmentId}/capabilities`,
-    );
-    expect(capabilityResponse.status()).toBe(200);
-    expect(await capabilityResponse.json()).toMatchObject({
-      assignmentId,
-      canReadResults: role !== "invigilator",
-      canScoreResults: role === "scorer",
-    });
-    if (role !== "scorer")
-      expect(readRequests.filter((url) => url.includes("/manual-scoring"))).toEqual([]);
-    if (role === "invigilator")
-      expect(
-        readRequests.filter((url) => /\/(results|reporting|score-amendments)$/.test(url)),
-      ).toEqual([]);
+    const profileReadStarted = Promise.withResolvers<void>();
+    const releaseProfileRead = Promise.withResolvers<void>();
+    if (role === "assessment-manager") {
+      await page.route(
+        `**/api/instructor/learners/${learnerId}/accommodation-profiles`,
+        async (route) => {
+          profileReadStarted.resolve();
+          await releaseProfileRead.promise;
+          await route.continue();
+        },
+      );
+    }
+    try {
+      await page.goto("/roster");
+      await expect(page.getByTestId(`roster-row-${learnerId}`)).toBeVisible();
+      if (role === "assessment-manager") await profileReadStarted.promise;
+      const capabilityResponse = await page.request.get(
+        `/api/instructor/assignments/${assignmentId}/capabilities`,
+      );
+      expect(capabilityResponse.status()).toBe(200);
+      expect(await capabilityResponse.json()).toMatchObject({
+        assignmentId,
+        canReadResults: role !== "invigilator",
+        canScoreResults: role === "scorer",
+      });
+      if (role !== "scorer")
+        expect(readRequests.filter((url) => url.includes("/manual-scoring"))).toEqual([]);
+      if (role === "invigilator")
+        expect(
+          readRequests.filter((url) => /\/(results|reporting|score-amendments)$/.test(url)),
+        ).toEqual([]);
 
-    expect(
-      (
-        await request.delete(`${api}/internal/staff/grants/${grantId}`, { headers: adminHeaders })
-      ).status(),
-    ).toBe(200);
-    expect(
-      (await page.request.get(`/api/instructor/assignments/${assignmentId}/capabilities`)).status(),
-    ).toBe(403);
-    await page.reload();
-    await expect(page.getByTestId(`roster-row-${learnerId}`)).toHaveCount(0);
-    expect(browserErrors).toEqual([]);
+      expect(
+        (
+          await request.delete(`${api}/internal/staff/grants/${grantId}`, { headers: adminHeaders })
+        ).status(),
+      ).toBe(200);
+      expect(
+        (
+          await page.request.get(`/api/instructor/assignments/${assignmentId}/capabilities`)
+        ).status(),
+      ).toBe(403);
+      if (role === "assessment-manager") {
+        const denied = page.waitForResponse(
+          (response) =>
+            response
+              .url()
+              .endsWith(`/api/instructor/learners/${learnerId}/accommodation-profiles`) &&
+            response.status() === 403,
+        );
+        releaseProfileRead.resolve();
+        await denied;
+        await expect(page.getByTestId(`roster-row-${learnerId}`)).toHaveCount(0);
+        await expect(
+          page.getByRole("alert").filter({ hasText: "Staff permission is required" }),
+        ).toBeVisible();
+      }
+      await page.reload();
+      await expect(page.getByTestId(`roster-row-${learnerId}`)).toHaveCount(0);
+      expect(browserErrors).toEqual([]);
+    } finally {
+      releaseProfileRead.resolve();
+    }
   });
 }
 

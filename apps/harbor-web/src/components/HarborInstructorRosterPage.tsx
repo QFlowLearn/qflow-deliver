@@ -1,3 +1,4 @@
+import { RuntimeSessionError } from "@/lib/runtime-session";
 import { reportUiError } from "@/lib/ui-errors";
 import StagedAssessmentSummary from "./session/StagedAssessmentSummary";
 import {
@@ -267,7 +268,15 @@ export default function HarborInstructorRosterPage(props: {
 
         const attemptId =
           row.latestAttempt.status === "not-started" ? null : row.latestAttempt.attemptId;
-        await refreshLearnerAccommodationAssignments(row.learner.id);
+        try {
+          await refreshLearnerAccommodationAssignments(row.learner.id);
+        } catch (error: unknown) {
+          if (!(error instanceof RuntimeSessionError) || error.status === undefined) throw error;
+          // The request owner has reported this HTTP failure. Recheck revoked access
+          // before retaining roster or result data, and stop this background refresh.
+          if (error.status === 401 || error.status === 403) await refreshInstructorWorkspace();
+          return;
+        }
         selectFirstAssignableAccommodationProfile();
         await refreshInstructorLearnerReport({
           assignmentId: selectedInstructorAssignmentId.value,
