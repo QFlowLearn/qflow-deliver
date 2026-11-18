@@ -33,7 +33,7 @@ export default function AnswerFeedbackReview(props: {
     try {
       const value = await loadAnswerFeedback(props.attemptId, { signal: controller.signal });
       if (current === generation.current) setFeedback(value);
-    } catch (_cause: unknown) {
+    } catch {
       if (current === generation.current) setFailed(true);
     } finally {
       if (current === generation.current) setLoading(false);

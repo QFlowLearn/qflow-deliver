@@ -16,7 +16,6 @@ import type {
 } from "@harbor/attempt-protocol";
 import runtimeWorker, { type Env as RuntimeEnv } from "../src/index";
 import {
-  buildSubmitFinalizationEnvelope,
   consumeSubmitFinalizationBatch,
   SUBMIT_FINALIZATION_QUEUE_NAME,
   type SubmitFinalizationEnvelope,

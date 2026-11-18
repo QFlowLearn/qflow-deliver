@@ -5,7 +5,6 @@ import { beforeEach, describe, expect, expectTypeOf, it } from "vitest";
 import type {
   AssignmentRecord,
   AssignmentReadResponse,
-  BootstrapPayload,
   CreateAssignmentRequest,
   QflowAssignmentIntent,
   QflowActivateVersionIntent,

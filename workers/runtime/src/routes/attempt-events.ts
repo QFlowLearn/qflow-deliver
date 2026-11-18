@@ -40,7 +40,7 @@ export async function commitAttemptEvent(input: {
   request: Request;
   env: AttemptEventsEnv;
   attemptId: string;
-  ctx: ExecutionContext;
+  ctx: Pick<ExecutionContext, "waitUntil">;
 }): Promise<Response> {
   const requestBody = await input.request.text();
   const eventType = readEventType(requestBody);

@@ -58,7 +58,7 @@ export function resolvePackageAssetReference(
     return { ok: false, reason: "path-traversal" };
   }
 
-  const resolvedSegments = [...itemSegments.slice(0, -1)];
+  const resolvedSegments = itemSegments.slice(0, -1);
   for (const segment of referenceSegments) {
     if (segment === "" || segment === ".") {
       continue;

@@ -120,7 +120,7 @@ export function applyAttemptPolicyCommand<TState extends PolicyAttemptState>(
         ...command.accommodations.sessionControl,
       },
       shellTools: {
-        ...(command.accommodations.shellTools ?? {}),
+        ...command.accommodations.shellTools,
       },
       ...(command.accommodations.pnpEntitlement
         ? {
@@ -319,7 +319,7 @@ function clonePolicyState(policy: AttemptPolicyState): AttemptPolicyState {
           : {}),
       },
       shellTools: {
-        ...(policy.accommodations.shellTools ?? {}),
+        ...policy.accommodations.shellTools,
       },
       ...(policy.accommodations.pnpEntitlement
         ? {

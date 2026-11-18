@@ -1,5 +1,4 @@
 import type {
-  AssignmentStatus,
   CreateAssignmentRequest,
   QflowAssignmentIntent,
   QflowHandoffRequest,
@@ -45,7 +44,7 @@ export async function qflowHandoff(input: {
   env: QflowEnv;
   url: URL;
 }): Promise<Response> {
-  const { request, env, url } = input;
+  const { request, env } = input;
   const rawBody = await request.text();
   await requireSignedQflowRequest({ request, env, rawBody });
   const allowUnsafeUserAgentFallback = isUnsafeSafeExamBrowserUserAgentFallbackEnabled(
@@ -430,14 +429,6 @@ function buildAssignmentRequest(intent: QflowAssignmentIntent): CreateAssignment
 async function sha256Hex(value: string): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
   return [...new Uint8Array(digest)].map((entry) => entry.toString(16).padStart(2, "0")).join("");
-}
-
-function readRecord(value: unknown, message: string): Record<string, unknown> {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    throw new LaunchRequestError(400, message);
-  }
-
-  return value as Record<string, unknown>;
 }
 
 function readRequiredString(value: unknown, message: string): string {

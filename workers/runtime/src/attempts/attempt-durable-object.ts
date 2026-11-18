@@ -24,7 +24,6 @@ import type {
   AttemptSubmissionSummary,
   AuthoritativeAttemptSessionState,
   CommitAttemptEventReceipt,
-  CurrentItemRef,
 } from "@harbor/attempt-protocol";
 import {
   buildAttemptStateErrorPayload,
@@ -67,8 +66,6 @@ import { AttemptDurableObjectRequestError, isStatusError } from "./attempt-reque
 import {
   nullableHeaderValue,
   readAttemptEvent,
-  readJsonObject,
-  readOptionalStringValue,
   readRequiredString,
 } from "./attempt-request-parsing";
 import { resolveAttemptStatus } from "./attempt-status";

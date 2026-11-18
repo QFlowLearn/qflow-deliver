@@ -283,7 +283,7 @@ test("applies explicit batch operator actions only to the selected attempt set a
       request,
       seed: `phase3-batch-first-${testInfo.parallelIndex}-${Date.now()}`,
     });
-    const secondAttemptId = await launchPreviewAttempt({
+    await launchPreviewAttempt({
       page: secondPage,
       request,
       seed: `phase3-batch-second-${testInfo.parallelIndex}-${Date.now()}`,

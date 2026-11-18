@@ -374,7 +374,9 @@ function applyPresentationConfiguration(
   canvasElement: HTMLElement,
   configuration: RendererConfiguration,
 ): void {
-  for (const className of [...canvasElement.classList]) {
+  // Snapshot this live list before removing previous theme classes.
+  const previousClasses = Array.from(canvasElement.classList);
+  for (const className of previousClasses) {
     if (className.startsWith("qti3-player-color-")) {
       canvasElement.classList.remove(className);
     }
@@ -455,7 +457,7 @@ function renderedObjectMediaKind(element: Element): "audio" | "video" | null {
 }
 
 function copyRenderedMediaAttributes(source: Element, target: HTMLMediaElement): void {
-  for (const { name, value } of [...source.attributes]) {
+  for (const { name, value } of source.attributes) {
     const normalizedName = name.toLowerCase();
     if (normalizedName === "data" || normalizedName === "type") {
       continue;

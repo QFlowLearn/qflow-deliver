@@ -69,7 +69,7 @@ To follow a response through the code, start with the [browser journal](apps/har
 
 ## Run locally
 
-Install Node 24 and pnpm 10.29.2. Then run:
+Install Node 26.12.0 and pnpm 12.21.0. Then run:
 
 ```sh
 pnpm install --frozen-lockfile
@@ -79,6 +79,10 @@ pnpm dev
 The development command starts the local Worker and web application, prepares sample data, and prints the learner and staff URLs. Stop it with Ctrl+C.
 
 The local configuration uses synthetic test credentials and emulated storage. Use it only for isolated development, without real learner data.
+
+The Worker uses `workers/runtime/cloudflare.config.ts` and the Cloudflare Vite plugin. `runtime-config.ts` holds its binding and trigger definitions. Local state stays under `workers/runtime/.wrangler/state`; staff browser tests use `.wrangler/staff-e2e` with authentication bypasses disabled. The directory names retain the previous local storage paths.
+
+The current Cloudflare CLI requires a valid UUID for D1. The local fixture database now uses `00000000-0000-4000-8000-000000000001`, which creates a new database namespace. Existing database files remain intact, but the development commands do not migrate their data. Run `pnpm dev` to prepare fresh sample data.
 
 Optional: Run `pnpm dev:preview`, `pnpm dev:services`, or `pnpm dev:access-code` for a specific development mode.
 
@@ -92,10 +96,12 @@ Run the following checks:
 pnpm typecheck
 pnpm test
 pnpm build:web
+pnpm build:worker
 pnpm test:e2e:delivery
+pnpm test:e2e:staff
 ```
 
-Before running browser tests, install Chromium with `pnpm exec playwright install chromium`. Run `pnpm verify` for all checks.
+Before running browser tests, install Chromium with `pnpm exec playwright install chromium`. Run `pnpm verify` for formatting, lint, type checks, unit tests, and both builds. CI also runs both browser suites.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines. Report vulnerabilities privately through the repository’s **Security → Report a vulnerability** form.
 

@@ -40,7 +40,8 @@ export function reactive<T extends object>(value: T): T {
   return new Proxy(value, {
     get(target, property, receiver) {
       if (property === reactiveVersion) return version;
-      version.value;
+      // Reading subscribes the current computation to mutations of this proxy.
+      void version.value;
       return Reflect.get(target, property, receiver);
     },
     set(target, property, next, receiver) {

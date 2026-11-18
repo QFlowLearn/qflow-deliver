@@ -58,6 +58,15 @@ export async function projectAttemptEvidenceEvent(input: {
     return;
   }
 
+  // Availability evidence is unique per idempotency key. Its accepted outbox
+  // entry owns that record, even when a retry reaches D1 before the outbox does.
+  if (
+    input.commitResponse.outcome === "duplicate" &&
+    readOptionalString(event.idempotencyKey)?.startsWith("support-availability:")
+  ) {
+    return;
+  }
+
   const eventType = readOptionalString(event.type);
   if (!eventType) {
     return;

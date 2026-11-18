@@ -3,7 +3,6 @@ import { env, exports as workerExports } from "cloudflare:workers";
 import { beforeEach, describe, expect, it } from "vitest";
 import type {
   FinalizeManualScoringResponse,
-  ManualScoringAttemptResponse,
   ManualScoringQueueResponse,
   SaveManualScoreResponse,
 } from "@harbor/attempt-protocol";

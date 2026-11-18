@@ -14,7 +14,6 @@ import {
   ensurePendingSubmitFinalization,
   loadAttemptResultContext,
   readPendingSubmitFinalizationEnvelopes,
-  type AttemptResultContextRow,
   type PersistedResultFinalization,
   type SubmitFinalizationEnvelope,
 } from "./submit-finalization-outbox";

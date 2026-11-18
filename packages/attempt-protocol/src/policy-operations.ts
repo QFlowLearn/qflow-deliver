@@ -179,8 +179,8 @@ export function buildAttemptAccommodationEvidenceSummary(input: {
   const rendererPnp = input.accommodations.rendererPnp ?? {};
   const sessionControl = input.accommodations.sessionControl ?? {};
   const shellTools = {
-    ...(input.accommodations.shellTools ?? {}),
-    ...(input.shellTools ?? {}),
+    ...input.accommodations.shellTools,
+    ...input.shellTools,
   };
   const colorTheme = rendererPnp.textAppearance?.colorStyle ?? null;
   const timing = input.timing ?? createDefaultAccommodationTimingEvidence();
@@ -258,17 +258,6 @@ export function createEmptyAttemptPolicyState(): AttemptPolicyState {
       shellTools: {},
     },
   };
-}
-
-function uniqueStrings(...groups: Array<readonly string[] | undefined>): string[] {
-  return [
-    ...new Set(
-      groups
-        .flatMap((group) => group ?? [])
-        .map((entry) => entry.trim())
-        .filter((entry) => entry.length > 0),
-    ),
-  ];
 }
 
 function buildPnpEvidenceLabels(

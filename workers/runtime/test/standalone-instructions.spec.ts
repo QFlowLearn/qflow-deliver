@@ -3,7 +3,6 @@ import JSZip from "jszip";
 import {
   assessmentInstructionsForItem,
   parseAssessmentInstructionBlocks,
-  type AssessmentInstructionBlock,
 } from "@harbor/content-model";
 import { parseHarborQtiPackage } from "../src/publish/qti-package-model";
 import { prepareAssessmentInstructions } from "../src/publish/assessment-instructions";

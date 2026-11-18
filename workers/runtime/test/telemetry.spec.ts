@@ -1,4 +1,3 @@
-import { parse, type ParseError } from "jsonc-parser";
 import JSZip from "jszip";
 import { applyD1Migrations, createExecutionContext, waitOnExecutionContext } from "cloudflare:test";
 import { env, exports as workerExports } from "cloudflare:workers";
@@ -10,7 +9,7 @@ import type {
 } from "@harbor/attempt-protocol";
 import type { Env as RuntimeEnv } from "../src/index";
 import runtimeWorker from "../src/index";
-import wranglerConfigText from "../wrangler.jsonc?raw";
+import { runtimeWorker as runtimeConfiguration } from "../runtime-config";
 import {
   ATTEMPT_RUNTIME_METRIC_BLOB_LABELS,
   ATTEMPT_RUNTIME_METRIC_DOUBLE_LABELS,
@@ -36,19 +35,6 @@ function readRuntimeBindings(): {
     ATTEMPT_RUNTIME_METRICS?: AnalyticsEngineDataset;
     SUBMIT_FINALIZATION_QUEUE?: Queue<unknown>;
     RESULT_EXPORT_QUEUE?: Queue<unknown>;
-  };
-}
-
-function readWranglerConfig() {
-  const errors: ParseError[] = [];
-  const config: unknown = parse(wranglerConfigText, errors, { allowTrailingComma: true });
-  if (errors.length || !config || typeof config !== "object" || Array.isArray(config)) {
-    throw new Error("Invalid runtime Worker configuration.");
-  }
-  return {
-    observability: Reflect.get(config, "observability"),
-    analytics_engine_datasets: Reflect.get(config, "analytics_engine_datasets"),
-    queues: Reflect.get(config, "queues"),
   };
 }
 
@@ -337,44 +323,36 @@ beforeEach(async () => {
 
 describe("phase 4 telemetry bindings", () => {
   it("binds one analytics dataset plus both result queues with explicit DLQ paths", () => {
-    const config = readWranglerConfig();
+    const config = runtimeConfiguration;
     const runtimeBindings = readRuntimeBindings();
 
     expect(config.observability).toMatchObject({
       enabled: true,
       logs: {
         enabled: true,
-        invocation_logs: true,
+        invocationLogs: true,
       },
     });
-    expect(config.analytics_engine_datasets).toEqual([
+    expect(config.env.ATTEMPT_RUNTIME_METRICS).toEqual({
+      type: "analytics-engine-dataset",
+      name: "ATTEMPT_RUNTIME_METRICS",
+    });
+    expect(config.env.SUBMIT_FINALIZATION_QUEUE).toEqual({
+      type: "queue",
+      name: "harbor-submit-finalization",
+    });
+    expect(config.env.RESULT_EXPORT_QUEUE).toEqual({
+      type: "queue",
+      name: "harbor-result-export",
+    });
+    expect(config.triggers.filter((trigger) => trigger.type === "queue")).toEqual([
       {
-        binding: "ATTEMPT_RUNTIME_METRICS",
-        dataset: "ATTEMPT_RUNTIME_METRICS",
+        type: "queue",
+        name: "harbor-submit-finalization",
+        deadLetterQueue: "harbor-submit-finalization-dlq",
       },
+      { type: "queue", name: "harbor-result-export", deadLetterQueue: "harbor-result-export-dlq" },
     ]);
-    expect(config.queues).toEqual({
-      producers: [
-        {
-          binding: "SUBMIT_FINALIZATION_QUEUE",
-          queue: "harbor-submit-finalization",
-        },
-        {
-          binding: "RESULT_EXPORT_QUEUE",
-          queue: "harbor-result-export",
-        },
-      ],
-      consumers: [
-        {
-          queue: "harbor-submit-finalization",
-          dead_letter_queue: "harbor-submit-finalization-dlq",
-        },
-        {
-          queue: "harbor-result-export",
-          dead_letter_queue: "harbor-result-export-dlq",
-        },
-      ],
-    });
     expect(typeof runtimeBindings.ATTEMPT_RUNTIME_METRICS?.writeDataPoint).toBe("function");
     expect(typeof runtimeBindings.SUBMIT_FINALIZATION_QUEUE?.send).toBe("function");
     expect(typeof runtimeBindings.RESULT_EXPORT_QUEUE?.send).toBe("function");

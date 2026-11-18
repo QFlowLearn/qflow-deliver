@@ -150,7 +150,7 @@ function parseOutcomes(json: string): Record<string, QtiValue> {
   let value: unknown;
   try {
     value = JSON.parse(json);
-  } catch (_cause: unknown) {
+  } catch {
     throw new LaunchRequestError(409, "Feedback outcomes are invalid");
   }
   if (!Array.isArray(value)) throw new LaunchRequestError(409, "Feedback outcomes are invalid");

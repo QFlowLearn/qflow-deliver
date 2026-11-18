@@ -20,7 +20,8 @@ const repoRoot = resolve(__dirname, "..");
 const runtimeRoot = resolve(repoRoot, "workers/runtime");
 const webRoot = resolve(repoRoot, "apps/harbor-web");
 const seedScriptPath = resolve(repoRoot, "tools/load/seed-phase4-fixture.mjs");
-const wranglerBinPath = resolve(repoRoot, "node_modules/wrangler/bin/wrangler.js");
+const cfBinPath = resolve(repoRoot, "node_modules/cf/bin/cf");
+const workerViteBinPath = resolve(runtimeRoot, "node_modules/vite/bin/vite.js");
 const viteBinPath = resolve(webRoot, "node_modules/vite/bin/vite.js");
 
 let shuttingDown = false;
@@ -52,14 +53,16 @@ async function main() {
   await runCommand(
     process.execPath,
     [
-      wranglerBinPath,
+      cfBinPath,
       "d1",
       "migrations",
       "apply",
-      "harbor-runtime-local",
+      "00000000-0000-4000-8000-000000000001",
       "--local",
-      "--config",
-      "wrangler.jsonc",
+      "--dir",
+      "../../packages/db/migrations",
+      "--persist-to",
+      ".wrangler/state",
     ],
     { cwd: runtimeRoot },
   );
@@ -70,16 +73,7 @@ async function main() {
       startProcess(
         "worker",
         process.execPath,
-        [
-          wranglerBinPath,
-          "dev",
-          "--config",
-          "wrangler.jsonc",
-          "--ip",
-          "127.0.0.1",
-          "--port",
-          "8787",
-        ],
+        [workerViteBinPath, "--host", "127.0.0.1", "--port", "8787"],
         runtimeRoot,
       ),
       startProcess(

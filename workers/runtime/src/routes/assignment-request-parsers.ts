@@ -1,5 +1,4 @@
 import type {
-  AssignmentActorSnapshot,
   AssignmentPolicySnapshot,
   AssignmentStatus,
   AssignmentTarget,

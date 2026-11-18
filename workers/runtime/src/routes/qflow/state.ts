@@ -53,7 +53,7 @@ export async function qflowState(input: {
   env: QflowStateEnv;
   url: URL;
 }): Promise<Response> {
-  const { request, env, url } = input;
+  const { request, env } = input;
   const rawBody = await request.text();
   await requireSignedQflowRequest({ request, env, rawBody });
   let body: unknown;

@@ -29,7 +29,7 @@ function readRequiredResponseIdentifiers(xml: string): string[] {
     }
 
     const identifiers = new Set<string>();
-    for (const element of [...document.getElementsByTagName("*")]) {
+    for (const element of document.getElementsByTagName("*")) {
       const responseIdentifier = element.getAttribute("response-identifier")?.trim();
       if (!responseIdentifier || !isRequiredQtiInteraction(element)) {
         continue;

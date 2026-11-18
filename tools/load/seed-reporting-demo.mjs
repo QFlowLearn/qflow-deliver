@@ -13,7 +13,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "..", "..");
 const runtimeRoot = path.join(repoRoot, "workers", "runtime");
 const fixtureRoot = path.join(repoRoot, "tests", "fixtures", "qti", "presidents-sampler-demo");
-const wranglerBinPath = path.join(repoRoot, "node_modules", "wrangler", "bin", "wrangler.js");
+const cfBinPath = path.join(repoRoot, "node_modules", "cf", "bin", "cf");
 const assignmentId = "assign_reporting_demo";
 const tenantId = "tenant_reporting_demo";
 const webOrigin = "http://127.0.0.1:4173";
@@ -126,7 +126,7 @@ async function main() {
     packageBytes,
   });
 
-  const sql = buildSeedSql({
+  const sql = buildSeedStatements({
     assessmentId: published.assessmentId,
     assessmentVersionId: published.assessmentVersionId,
   });
@@ -202,10 +202,9 @@ async function publishFixture(input) {
   return payload;
 }
 
-function buildSeedSql(input) {
+function buildSeedStatements(input) {
   const statements = [
-    "PRAGMA foreign_keys = OFF;",
-    "BEGIN TRANSACTION;",
+    "PRAGMA defer_foreign_keys = ON;",
     ...buildCleanupStatements(),
     insert("assignments", {
       id: assignmentId,
@@ -222,11 +221,9 @@ function buildSeedSql(input) {
     }),
     ...buildStandardsStatements(input.assessmentVersionId),
     ...buildLearnerStatements(input.assessmentVersionId),
-    "COMMIT;",
-    "PRAGMA foreign_keys = ON;",
   ];
 
-  return `${statements.join("\n")}\n`;
+  return statements;
 }
 
 function buildCleanupStatements() {
@@ -598,24 +595,25 @@ function buildEvidenceStatements(input) {
   );
 }
 
-async function executeLocalSql(sql) {
+async function executeLocalSql(statements) {
   const temporaryDirectory = await mkdtemp(path.join(tmpdir(), "harbor-reporting-demo-"));
-  const sqlPath = path.join(temporaryDirectory, "seed-reporting-demo.sql");
-  await writeFile(sqlPath, sql, "utf8");
+  const batchPath = path.join(temporaryDirectory, "seed-reporting-demo.json");
+  await writeFile(batchPath, JSON.stringify(statements.map((sql) => ({ sql }))), "utf8");
 
   try {
+    // D1 executes the batch in one transaction; separate statements avoid its SQL size limit.
     await runCommand(
       process.execPath,
       [
-        wranglerBinPath,
+        cfBinPath,
         "d1",
-        "execute",
-        "harbor-runtime-local",
+        "raw",
+        "00000000-0000-4000-8000-000000000001",
         "--local",
-        "--config",
-        "wrangler.jsonc",
-        "--file",
-        sqlPath,
+        "--persist-to",
+        ".wrangler/state",
+        "--batch",
+        `@${batchPath}`,
       ],
       { cwd: runtimeRoot },
     );

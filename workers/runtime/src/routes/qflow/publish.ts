@@ -4,7 +4,6 @@ import type { ImportValidationReport } from "@harbor/content-model";
 import { LaunchRequestError } from "../../launch/create-preview-attempt";
 import { importQtiPackage, type PublishResult } from "../../publish/import-qti-package";
 import { readAssessmentVersionValidationReport } from "../../publish/qti-validation-read";
-import { PublishInputError } from "../../publish/publish-errors";
 import { requireSignedQflowRequest } from "./signature";
 import type { AppContext } from "../hono-utils";
 import { requestUrl } from "../hono-utils";

@@ -318,8 +318,6 @@ export default function App() {
     deliveryContextSupportLabel,
     bootstrappedSession,
     entryMode,
-    errorMessage,
-    loading,
     policyState,
   } = state.runtime;
 

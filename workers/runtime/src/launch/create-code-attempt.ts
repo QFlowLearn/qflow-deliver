@@ -3,7 +3,6 @@ import type {
   AssignmentPolicySnapshot,
   AuthoritativeAttemptSessionState,
   AttemptStatus,
-  DeliveryPolicySnapshot,
 } from "@harbor/attempt-protocol";
 
 import { ATTEMPT_COORDINATOR_ATTEMPT_ID_HEADER } from "../attempts/attempt-durable-object";

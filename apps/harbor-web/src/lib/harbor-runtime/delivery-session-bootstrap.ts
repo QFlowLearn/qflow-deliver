@@ -383,10 +383,10 @@ export function createDeliverySessionBootstrapActions(ctx: DeliverySessionContex
             : null,
           accommodations: {
             rendererPnp: {
-              ...(policy.accommodations?.rendererPnp ?? {}),
+              ...policy.accommodations?.rendererPnp,
             },
             sessionControl: {
-              ...(policy.accommodations?.sessionControl ?? {}),
+              ...policy.accommodations?.sessionControl,
               ...(policy.accommodations?.sessionControl?.time_limits
                 ? {
                     time_limits: {
@@ -396,7 +396,7 @@ export function createDeliverySessionBootstrapActions(ctx: DeliverySessionContex
                 : {}),
             },
             shellTools: {
-              ...(policy.accommodations?.shellTools ?? {}),
+              ...policy.accommodations?.shellTools,
             },
             ...(policy.accommodations?.pnpEntitlement
               ? {

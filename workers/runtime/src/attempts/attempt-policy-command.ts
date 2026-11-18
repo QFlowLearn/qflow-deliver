@@ -232,9 +232,7 @@ function readRendererPnpTextAppearance(
     );
   }
 
-  return {
-    ...(colorStyle !== undefined ? { colorStyle } : {}),
-  };
+  return colorStyle !== undefined ? { colorStyle } : {};
 }
 
 function readSessionControlTimeLimits(

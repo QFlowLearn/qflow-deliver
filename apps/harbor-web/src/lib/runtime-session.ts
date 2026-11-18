@@ -397,7 +397,7 @@ export function resolveRendererPnp(policy: AttemptPolicyState) {
     ...policy.accommodations.rendererPnp,
     textAppearance: {
       ...DEFAULT_RENDERER_PNP.textAppearance,
-      ...(policy.accommodations.rendererPnp.textAppearance ?? {}),
+      ...policy.accommodations.rendererPnp.textAppearance,
     },
   };
 }
@@ -408,7 +408,7 @@ export function resolveRendererSessionControl(policy: AttemptPolicyState) {
     ...policy.accommodations.sessionControl,
     time_limits: {
       ...DEFAULT_RENDERER_SESSION_CONTROL.time_limits,
-      ...(policy.accommodations.sessionControl.time_limits ?? {}),
+      ...policy.accommodations.sessionControl.time_limits,
     },
   };
 }

@@ -12,13 +12,6 @@ function getTestEnv(): {
   };
 }
 
-function getRouteEnv(): ReturnType<typeof getTestEnv> & { HARBOR_ADMIN_KEY: string } {
-  return {
-    ...getTestEnv(),
-    HARBOR_ADMIN_KEY: "admin-test-key",
-  };
-}
-
 async function resetBindings(): Promise<void> {
   const { HARBOR_DB, TEST_MIGRATIONS } = getTestEnv();
   await applyD1Migrations(HARBOR_DB, TEST_MIGRATIONS);

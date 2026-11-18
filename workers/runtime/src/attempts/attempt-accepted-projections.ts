@@ -144,7 +144,7 @@ async function projectAcceptedTimingEvents(input: {
       sequenceNumber: input.receipt.acceptedSequenceNumber,
       itemRef: input.event.itemRef,
       payload: {
-        ...(input.receipt.timingDecision ?? {}),
+        ...input.receipt.timingDecision,
         effectiveTimingPolicyVersion: input.nextState.scopedTiming.policyVersion,
         source,
       },

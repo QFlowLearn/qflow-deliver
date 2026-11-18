@@ -19,7 +19,7 @@ export default defineConfig({
     : [
         {
           command:
-            "pnpm --dir workers/runtime exec wrangler d1 migrations apply harbor-runtime-local --local --config wrangler.jsonc && pnpm --dir workers/runtime exec wrangler dev --config wrangler.jsonc --ip 127.0.0.1 --port 8787",
+            "pnpm --dir workers/runtime db:migrate && pnpm --dir workers/runtime exec vite --host 127.0.0.1 --port 8787",
           port: 8787,
           reuseExistingServer: !process.env.CI,
           timeout: 120_000,

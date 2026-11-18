@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { cloudflareTest, readD1Migrations } from "@cloudflare/vitest-pool-workers";
+import { cloudflareTest, readD1Migrations } from "@cloudflare/vitest-plugin";
 import { defineConfig } from "vitest/config";
 
 const migrationsDir = "packages/db/migrations";
@@ -11,9 +11,8 @@ export default defineConfig(async () => {
     plugins: [
       cloudflareTest({
         main: "./workers/runtime/test/runtime-main.ts",
-        wrangler: {
-          configPath: "./workers/runtime/wrangler.jsonc",
-        },
+        config: "./workers/runtime/cloudflare.config.ts",
+        remoteBindings: false,
         miniflare: {
           bindings: {
             TEST_MIGRATIONS: testMigrations,

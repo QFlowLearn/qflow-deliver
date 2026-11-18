@@ -13,10 +13,7 @@ import {
   RESULT_EXPORT_QUEUE_NAME,
   type ResultExportEnvelope,
 } from "./queues/result-export";
-import {
-  ResultRemediationWorkflow,
-  type ResultRemediationWorkflowParams,
-} from "./workflows/result-remediation";
+import { ResultRemediationWorkflow } from "./workflows/result-remediation";
 
 export type { Env } from "./env";
 export { PHASE_ONE_BOUNDARY } from "./phase-boundary";

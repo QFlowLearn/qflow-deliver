@@ -1,5 +1,5 @@
 import { beforeAll, expect, it } from "vitest";
-import type { BootstrapPayload, CommitAttemptEventReceipt } from "@harbor/attempt-protocol";
+import type { CommitAttemptEventReceipt } from "@harbor/attempt-protocol";
 import { setupStagedTests, launch, request, answer } from "./staged-assessment-harness";
 beforeAll(setupStagedTests);
 

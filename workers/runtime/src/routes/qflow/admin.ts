@@ -33,7 +33,7 @@ export async function qflowAdmin(input: {
   env: QflowAdminEnv;
   url: URL;
 }): Promise<Response> {
-  const { request, env, url } = input;
+  const { request, env } = input;
   requireAdminKey(request, env);
 
   if (request.method === "GET") {

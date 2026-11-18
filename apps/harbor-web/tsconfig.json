@@ -13,11 +13,9 @@
     "skipLibCheck": true,
     "jsx": "react-jsx",
     "jsxImportSource": "preact",
-    "ignoreDeprecations": "6.0",
     "types": ["node"],
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
+      "@/*": ["./src/*"],
       "@harbor/attempt-protocol": ["../../packages/attempt-protocol/src/index.ts"],
       "@harbor/renderer-adapter": ["../../packages/renderer-adapter/src/index.ts"]
     }

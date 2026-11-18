@@ -44,7 +44,7 @@ export async function qflowCapability(input: {
   env: QflowCapabilityEnv;
   url: URL;
 }): Promise<Response> {
-  const { request, env, url } = input;
+  const { request, env } = input;
   const rawBody = await request.text();
   await requireSignedQflowRequest({ request, env, rawBody });
   const intent = parseCapabilityRequest(rawBody);

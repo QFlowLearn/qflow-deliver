@@ -168,7 +168,7 @@ describe("OneRoster 1.2 Rostering REST preview", () => {
   });
 
   it("creates stable REST source identities without storing credential values", async () => {
-    const provider = createOneRosterV1p2TestProvider();
+    createOneRosterV1p2TestProvider();
     const first = await configureSource("tenant-source-identity");
     const second = await configureSource("tenant-source-identity");
     const csv = await previewCsvRosterImport({

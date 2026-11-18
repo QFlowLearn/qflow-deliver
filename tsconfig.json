@@ -9,13 +9,12 @@
     "allowJs": false,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "ignoreDeprecations": "6.0",
     "types": ["node", "@cloudflare/workers-types"],
-    "baseUrl": ".",
     "paths": {
-      "@harbor/attempt-protocol": ["packages/attempt-protocol/src/index.ts"],
-      "@harbor/content-model": ["packages/content-model/src/index.ts"]
-    }
+      "@harbor/attempt-protocol": ["./packages/attempt-protocol/src/index.ts"],
+      "@harbor/content-model": ["./packages/content-model/src/index.ts"]
+    },
+    "allowImportingTsExtensions": true
   },
   "include": [
     "apps/**/*.d.ts",

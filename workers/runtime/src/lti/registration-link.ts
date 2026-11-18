@@ -52,8 +52,12 @@ export async function readHarborLtiRegistrationTenantId(
 
 function parseTenantId(value: string): string {
   const tenantId = value.trim();
-  if (!tenantId || tenantId.length > 200 || /[\u0000-\u001f\u007f]/.test(tenantId)) {
+  if (!tenantId || tenantId.length > 200) {
     throw new Error("Invalid QFlowLearn Delivery tenant id");
+  }
+  for (const character of tenantId) {
+    const code = character.charCodeAt(0);
+    if (code < 32 || code === 127) throw new Error("Invalid QFlowLearn Delivery tenant id");
   }
   return tenantId;
 }

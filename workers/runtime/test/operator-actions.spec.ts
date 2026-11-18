@@ -540,6 +540,13 @@ describe("operator action runtime behavior", () => {
     );
     expect(submitResponse.status).toBe(200);
 
+    await expect
+      .poll(async () => {
+        const response = await getJson(`/internal/attempts/${launched.attemptId}/timeline`);
+        expect(response.status).toBe(200);
+        return (await response.json<AttemptTimelineResponse>()).entries.length;
+      })
+      .toBe(4);
     const timelineResponse = await getJson(`/internal/attempts/${launched.attemptId}/timeline`);
     expect(timelineResponse.status).toBe(200);
 

@@ -1,13 +1,9 @@
 import {
   createDefaultAccommodationTimingEvidence,
-  createEmptyAttemptPolicyState,
   isHarborQti3ColorTheme,
   readHarborAfaPnpSupport,
-  type AssignmentActorSnapshot,
   type AssignmentLearnerPolicyOverrides,
-  type AssignmentPolicySnapshot,
   type AssignmentStatus,
-  type AssignmentTarget,
   type AttemptAccommodationState,
   type AttemptAccommodationTimingEvidence,
   type AttemptSyncHealthSignal,
@@ -15,7 +11,6 @@ import {
   type HarborAdditionalTestingTimeAccommodation,
   type HarborShellAccommodationState,
   type HarborTestingTimeAllocationPolicy,
-  type LtiAssignmentLinkage,
 } from "@harbor/attempt-protocol";
 import { LaunchRequestError } from "../../../launch/create-preview-attempt";
 import {
@@ -23,7 +18,6 @@ import {
   readOptionalPositiveInteger,
   readRequiredString,
 } from "../../route-request-utils";
-import { readAssignmentPolicySnapshot } from "../../assignment-request-parsers";
 import { readSafeExamBrowserPolicy } from "../../safe-exam-browser-policy";
 
 export async function requireLearnerRecord(
@@ -265,16 +259,14 @@ function readRendererPnpTextAppearance(
     "accommodations.rendererPnp.textAppearance must be a JSON object",
   );
   const colorStyle = textAppearance.colorStyle;
-  return {
-    ...(colorStyle !== undefined
-      ? {
-          colorStyle: readHarborQti3ColorTheme(
-            colorStyle,
-            "accommodations.rendererPnp.textAppearance.colorStyle must be one of QFlowLearn Delivery's supported qti3 color themes",
-          ),
-        }
-      : {}),
-  };
+  return colorStyle !== undefined
+    ? {
+        colorStyle: readHarborQti3ColorTheme(
+          colorStyle,
+          "accommodations.rendererPnp.textAppearance.colorStyle must be one of QFlowLearn Delivery's supported qti3 color themes",
+        ),
+      }
+    : {};
 }
 
 function readShellToolsAccommodation(

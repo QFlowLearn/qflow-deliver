@@ -18,3 +18,5 @@ test-results
 /.planning/
 /.local/
 workers/runtime/wrangler.deploy.jsonc
+
+.cloudflare

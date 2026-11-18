@@ -643,30 +643,6 @@ export function requireLtiToolEnv(env: InstructorEnv): InstructorEnv & {
   };
 }
 
-function readOptionalString(value: unknown): string | null {
-  if (value === undefined || value === null) {
-    return null;
-  }
-  if (typeof value !== "string") {
-    throw new LaunchRequestError(400, "Optional string value must be a string");
-  }
-
-  const trimmed = value.trim();
-  return trimmed ? trimmed : null;
-}
-
-function readOptionalBoolean(value: unknown): boolean | undefined {
-  if (value === undefined || value === null) {
-    return undefined;
-  }
-
-  if (typeof value !== "boolean") {
-    throw new LaunchRequestError(400, "Optional boolean value must be a boolean");
-  }
-
-  return value;
-}
-
 export function readOptionalReconciliationPolicy(
   value: unknown,
 ): "additive-only" | "mark-inactive" | undefined {

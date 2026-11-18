@@ -296,21 +296,21 @@ function mergeAccommodations(
       ...base.rendererPnp,
       ...override.rendererPnp,
       textAppearance: {
-        ...(base.rendererPnp.textAppearance ?? {}),
-        ...(override.rendererPnp.textAppearance ?? {}),
+        ...base.rendererPnp.textAppearance,
+        ...override.rendererPnp.textAppearance,
       },
     },
     sessionControl: {
       ...base.sessionControl,
       ...override.sessionControl,
       time_limits: {
-        ...(base.sessionControl.time_limits ?? {}),
-        ...(override.sessionControl.time_limits ?? {}),
+        ...base.sessionControl.time_limits,
+        ...override.sessionControl.time_limits,
       },
     },
     shellTools: {
-      ...(base.shellTools ?? {}),
-      ...(override.shellTools ?? {}),
+      ...base.shellTools,
+      ...override.shellTools,
     },
     ...(Object.keys(pnpEntitlement).length > 0 ? { pnpEntitlement } : {}),
     ...((override.additionalTestingTime ?? base.additionalTestingTime)

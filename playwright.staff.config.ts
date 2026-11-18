@@ -11,7 +11,7 @@ export default defineConfig({
   webServer: [
     {
       command:
-        "pnpm --dir workers/runtime exec wrangler d1 migrations apply harbor-runtime-local --local --config wrangler.jsonc --persist-to .wrangler/staff-e2e && pnpm --dir workers/runtime exec wrangler dev --config wrangler.jsonc --persist-to .wrangler/staff-e2e --ip 127.0.0.1 --port 8791 --var ALLOW_UNSAFE_LOCAL_INSTRUCTOR_AUTH:false --var ALLOW_UNSAFE_LOCAL_INTERNAL_API:false --var ALLOW_UNSAFE_LOCAL_INSTITUTIONAL_AUTH:false --var HARBOR_ADMIN_KEY:staff-e2e-test-admin",
+        "pnpm --dir workers/runtime exec cf d1 migrations apply 00000000-0000-4000-8000-000000000001 --local --dir ../../packages/db/migrations --persist-to .wrangler/staff-e2e --mode staff-test && pnpm --dir workers/runtime exec vite --mode staff-test --host 127.0.0.1 --port 8791",
       port: 8791,
       reuseExistingServer: false,
       timeout: 120_000,

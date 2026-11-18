@@ -9,7 +9,6 @@ import type {
   BootstrapSequenceState,
   BootstrapPayload,
   CurrentItemRef,
-  DeliveryPolicySnapshot,
   DeliveryContextEvaluation,
   LaunchActor,
   LaunchMode,

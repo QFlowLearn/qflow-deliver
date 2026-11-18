@@ -3,6 +3,11 @@
   "private": true,
   "license": "AGPL-3.0-only",
   "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "db:migrate": "cf d1 migrations apply 00000000-0000-4000-8000-000000000001 --local --dir ../../packages/db/migrations --persist-to .wrangler/state"
+  },
   "dependencies": {
     "@harbor/attempt-protocol": "workspace:*",
     "@harbor/content-model": "workspace:*",
@@ -19,6 +24,8 @@
     "oauth4webapi": "^3.8.6"
   },
   "devDependencies": {
-    "@types/css-tree": "2.3.11"
+    "@cloudflare/vite-plugin": "2.0.0-rc.1",
+    "@types/css-tree": "3.2.0",
+    "vite": "8.3.8"
   }
 }

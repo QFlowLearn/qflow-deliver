@@ -362,6 +362,7 @@ describe("shared attempt alarms", () => {
         await Promise.all([delivery, alarm]);
       }
       await runOutboxAlarm(stub);
+      await flush(stub);
       await expect.poll(async () => (await snapshot(stub)).alarm).toBeNull();
     },
   );

@@ -92,14 +92,6 @@ function readRecord(value: unknown, message: string): Record<string, unknown> {
   return value as Record<string, unknown>;
 }
 
-function readOptionalRecord(value: unknown): Record<string, unknown> | null {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return null;
-  }
-
-  return value as Record<string, unknown>;
-}
-
 function readRequiredPayloadString(record: Record<string, unknown>, key: string): string {
   const value = record[key];
   if (typeof value !== "string" || !value.trim()) {
@@ -184,30 +176,6 @@ function readNullableOptionalNumber(value: unknown, label: string): number | nul
   }
 
   return readNullableNumber(value, label);
-}
-
-function readOptionalInteger(value: unknown, label: string): number | undefined {
-  if (value === undefined) {
-    return undefined;
-  }
-
-  if (typeof value !== "number" || !Number.isInteger(value)) {
-    throw new LaunchRequestError(502, `${label} must be an integer`);
-  }
-
-  return value;
-}
-
-function readNullableInteger(value: unknown, label: string): number | null {
-  if (value === null) {
-    return null;
-  }
-
-  if (typeof value !== "number" || !Number.isInteger(value)) {
-    throw new LaunchRequestError(502, `${label} must be an integer or null`);
-  }
-
-  return value;
 }
 
 function readBoolean(value: unknown, label: string): boolean {

@@ -710,6 +710,13 @@ describe("attempt event route", () => {
       attemptStatus: "submitted",
     });
 
+    await expect
+      .poll(async () => {
+        const response = await getJson(`/internal/attempts/${launched.attemptId}/evidence`);
+        expect(response.status).toBe(200);
+        return (await response.json<AttemptEvidenceResponse>()).events.length;
+      })
+      .toBe(6);
     const evidenceResponse = await getJson(`/internal/attempts/${launched.attemptId}/evidence`);
     expect(evidenceResponse.status).toBe(200);
     const evidence = await evidenceResponse.json<AttemptEvidenceResponse>();

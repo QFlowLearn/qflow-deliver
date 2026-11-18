@@ -7,7 +7,6 @@ import type {
   OneRosterV1p2Org,
   OneRosterV1p2Page,
   OneRosterV1p2RestError,
-  OneRosterV1p2RosteringClient,
   OneRosterV1p2User,
 } from "@longsightgroup/oneroster/v1p2";
 import {
