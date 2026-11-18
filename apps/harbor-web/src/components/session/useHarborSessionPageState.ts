@@ -1,3 +1,4 @@
+import { reportUiError } from "@/lib/ui-errors";
 import { computed, nextTick, onBeforeUnmount, ref, useSetup, watch } from "@/lib/preact-reactivity";
 import { assessmentInstructionsForItem } from "@harbor/content-model";
 import {
@@ -511,7 +512,7 @@ export function useHarborSessionPageState(runtime: HarborRuntimeController) {
         dismissTranslation();
         resetCatalogState();
         lastSupportActivationSignature = "";
-        void refreshAnswerMaskChoiceRegions();
+        refreshAnswerMaskChoiceRegions().catch(reportUiError);
       },
     );
 
@@ -591,22 +592,22 @@ export function useHarborSessionPageState(runtime: HarborRuntimeController) {
       host.addEventListener("item-ready", () => {
         handleItemReady();
         queueMicrotask(() => refreshRendererSupportMetadata());
-        void refreshAnswerMaskChoiceRegions();
+        refreshAnswerMaskChoiceRegions().catch(reportUiError);
       });
       host.addEventListener("renderer-interaction-observed", () => {
         handleRendererInteractionObserved();
       });
       host.addEventListener("score-attempt-completed", (event) => {
-        void handleScoreAttemptCompleted(readCustomEventDetail(event));
+        handleScoreAttemptCompleted(readCustomEventDetail(event));
       });
       host.addEventListener("snapshot-attempt-completed", (event) => {
-        void handleSnapshotAttemptCompleted(readCustomEventDetail(event));
+        handleSnapshotAttemptCompleted(readCustomEventDetail(event));
       });
       host.addEventListener("suspend-attempt-completed", (event) => {
-        void handleSuspendAttemptCompleted(readCustomEventDetail(event));
+        handleSuspendAttemptCompleted(readCustomEventDetail(event));
       });
       host.addEventListener("end-attempt-completed", (event) => {
-        void handleEndAttemptCompleted(readCustomEventDetail(event));
+        handleEndAttemptCompleted(readCustomEventDetail(event));
       });
     }
 
@@ -663,28 +664,28 @@ export function useHarborSessionPageState(runtime: HarborRuntimeController) {
 
       if (captionActivation.value === "active" && currentItemCaptionEntries.value.length > 0) {
         captionsPanelOpen.value = true;
-        void recordAccommodationSupportEvidence({
+        recordAccommodationSupportEvidence({
           support: "caption",
           state: "opened",
           activation: captionActivation.value,
           entries: currentItemCaptionEntries.value,
           reason: "activate-at-initialization",
           dedupe: true,
-        });
+        }).catch(reportUiError);
       }
       if (
         transcriptActivation.value === "active" &&
         currentItemTranscriptEntries.value.length > 0
       ) {
         transcriptsPanelOpen.value = true;
-        void recordAccommodationSupportEvidence({
+        recordAccommodationSupportEvidence({
           support: "transcript",
           state: "opened",
           activation: transcriptActivation.value,
           entries: currentItemTranscriptEntries.value,
           reason: "activate-at-initialization",
           dedupe: true,
-        });
+        }).catch(reportUiError);
       }
       if (
         (audioDescriptionActivation.value === "active" ||
@@ -723,7 +724,7 @@ export function useHarborSessionPageState(runtime: HarborRuntimeController) {
 
     function toggleCaptionsPanel(): void {
       captionsPanelOpen.value = !captionsPanelOpen.value;
-      void recordAccommodationSupportEvidence({
+      recordAccommodationSupportEvidence({
         support: "caption",
         state: captionsPanelOpen.value ? "opened" : "closed",
         activation: captionActivation.value,
@@ -731,12 +732,12 @@ export function useHarborSessionPageState(runtime: HarborRuntimeController) {
         reason: "candidate-toggle",
         control: "caption-panel",
         dedupe: false,
-      });
+      }).catch(reportUiError);
     }
 
     function toggleTranscriptsPanel(): void {
       transcriptsPanelOpen.value = !transcriptsPanelOpen.value;
-      void recordAccommodationSupportEvidence({
+      recordAccommodationSupportEvidence({
         support: "transcript",
         state: transcriptsPanelOpen.value ? "opened" : "closed",
         activation: transcriptActivation.value,
@@ -744,7 +745,7 @@ export function useHarborSessionPageState(runtime: HarborRuntimeController) {
         reason: "candidate-toggle",
         control: "transcript-panel",
         dedupe: false,
-      });
+      }).catch(reportUiError);
     }
 
     function toggleMediaAlternativesPanel(): void {

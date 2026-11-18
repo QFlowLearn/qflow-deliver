@@ -19,23 +19,27 @@ const TAB_ID_SESSION_STORAGE_KEY = "harbor.tabId";
 const RECOVERY_ACTIVE_TAB_TTL_MS = 15_000;
 
 export interface RuntimeRecoveryCache {
-  readOrCreateClientSessionId(): string;
-  readOrCreateTabId(): string;
-  writeCachedBootstrappedSession(session: BootstrappedSession): void;
-  readCachedBootstrappedSession(): BootstrappedSession | null;
-  writeRecoverySession(session: BootstrappedSession, closedAt: number | null): void;
-  readRecoverySession(): BootstrappedSession | null;
-  markRecoverySessionClosed(): void;
-  writeCachedItemStates(attemptId: string, itemStates: Record<string, unknown>): Promise<void>;
-  readCachedItemStates(attemptId: string): Promise<Record<string, unknown>>;
-  readLaunchKey(url?: URL): string;
+  readOrCreateClientSessionId(this: void): string;
+  readOrCreateTabId(this: void): string;
+  writeCachedBootstrappedSession(this: void, session: BootstrappedSession): void;
+  readCachedBootstrappedSession(this: void): BootstrappedSession | null;
+  writeRecoverySession(this: void, session: BootstrappedSession, closedAt: number | null): void;
+  readRecoverySession(this: void): BootstrappedSession | null;
+  markRecoverySessionClosed(this: void): void;
+  writeCachedItemStates(
+    this: void,
+    attemptId: string,
+    itemStates: Record<string, unknown>,
+  ): Promise<void>;
+  readCachedItemStates(this: void, attemptId: string): Promise<Record<string, unknown>>;
+  readLaunchKey(this: void, url?: URL): string;
 }
 
 export function createRuntimeRecoveryCache(input: {
   itemStateStore: AttemptItemStateStore;
   currentClientSessionId: RefLike<string>;
   bootstrappedSession: RefLike<BootstrappedSession | null>;
-  getLocationHref(): string;
+  getLocationHref(this: void): string;
 }): RuntimeRecoveryCache {
   function getClientSessionId(): string {
     return input.currentClientSessionId.value;

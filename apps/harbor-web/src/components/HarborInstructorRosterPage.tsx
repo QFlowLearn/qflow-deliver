@@ -1,3 +1,4 @@
+import { reportUiError } from "@/lib/ui-errors";
 import StagedAssessmentSummary from "./session/StagedAssessmentSummary";
 import {
   HARBOR_QTI3_COLOR_THEMES,
@@ -684,7 +685,7 @@ export default function HarborInstructorRosterPage(props: {
                   class="detail-section"
                   onSubmit={(event) => {
                     event.preventDefault();
-                    void transferToReplacementWorkstation();
+                    transferToReplacementWorkstation().catch(reportUiError);
                   }}
                 >
                   <div class="field-grid">
@@ -983,7 +984,7 @@ export default function HarborInstructorRosterPage(props: {
                       if (!(event.submitter instanceof HTMLButtonElement)) return;
                       const type = event.submitter.value;
                       if (type === "extend-time" || type === "reopen-attempt")
-                        void applyTimingAction(type);
+                        applyTimingAction(type).catch(reportUiError);
                     }}
                   >
                     <div class="field-grid">

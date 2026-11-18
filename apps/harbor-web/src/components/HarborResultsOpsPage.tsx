@@ -1,3 +1,4 @@
+import { reportUiError } from "@/lib/ui-errors";
 import { computed, onMounted, ref, useSetup } from "@/lib/preact-reactivity";
 import type { HarborPage } from "@/App";
 import { useHarborRuntime } from "@/lib/harbor-runtime";
@@ -65,9 +66,7 @@ export default function HarborResultsOpsPage(_props: { navigateTo: (page: Harbor
         ).length,
     );
 
-    onMounted(() => {
-      void refreshFilteredResults();
-    });
+    onMounted(refreshFilteredResults);
 
     async function refreshFilteredResults(): Promise<void> {
       await refreshResultsOps({
@@ -85,7 +84,7 @@ export default function HarborResultsOpsPage(_props: { navigateTo: (page: Harbor
       selectedTenantId.value = "";
       selectedAssignmentId.value = "";
       selectedStatus.value = "all";
-      void refreshFilteredResults();
+      refreshFilteredResults().catch(reportUiError);
     }
 
     return {
@@ -147,7 +146,7 @@ export default function HarborResultsOpsPage(_props: { navigateTo: (page: Harbor
               data-testid="results-ops-filter-tenant"
               onChange={(event) => {
                 state.selectedTenantId.value = event.currentTarget.value;
-                void state.selectTenant();
+                state.selectTenant().catch(reportUiError);
               }}
             >
               <option value="">All tenants</option>
@@ -166,7 +165,7 @@ export default function HarborResultsOpsPage(_props: { navigateTo: (page: Harbor
               data-testid="results-ops-filter-assessment"
               onChange={(event) => {
                 state.selectedAssignmentId.value = event.currentTarget.value;
-                void state.refreshFilteredResults();
+                state.refreshFilteredResults().catch(reportUiError);
               }}
             >
               <option value="">All assessments</option>

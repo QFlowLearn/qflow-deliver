@@ -1,3 +1,4 @@
+import { reportUiError } from "../ui-errors";
 import type {
   AttemptEventCommitResponse,
   AttemptSubmissionMaterializationInput,
@@ -670,7 +671,7 @@ export function createDeliverySessionNavigationActions(ctx: DeliverySessionConte
     );
     options.signal?.throwIfAborted();
     state.currentItemPayload.value = item;
-    if (!options.signal) void recordCurrentItemPresented("navigation");
+    if (!options.signal) recordCurrentItemPresented("navigation").catch(reportUiError);
   }
 
   async function recordCurrentItemPresented(

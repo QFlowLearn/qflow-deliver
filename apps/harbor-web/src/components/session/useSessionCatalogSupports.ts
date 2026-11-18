@@ -1,3 +1,4 @@
+import { reportUiError } from "@/lib/ui-errors";
 import type { Signal } from "@preact/signals";
 import type { HarborRuntimeController } from "@/lib/harbor-runtime";
 import type {
@@ -91,17 +92,19 @@ export function useSessionCatalogSupports(input: {
     for (const support of HARBOR_CATALOG_AVAILABILITY_EVIDENCE_SUPPORTS) {
       const activation = input.supportActivation(support);
       if (activation === "blocked") {
-        void input.recordEvidence({
-          support,
-          state: "suppressed",
-          activation,
-          entries: resolveCatalogEntriesForLanguage(
+        input
+          .recordEvidence({
             support,
-            support === "keyword-translation" ? selectedKeywordLanguage.value : null,
-          ),
-          reason: "pnp-prohibit-set",
-          dedupe: true,
-        });
+            state: "suppressed",
+            activation,
+            entries: resolveCatalogEntriesForLanguage(
+              support,
+              support === "keyword-translation" ? selectedKeywordLanguage.value : null,
+            ),
+            reason: "pnp-prohibit-set",
+            dedupe: true,
+          })
+          .catch(reportUiError);
         continue;
       }
       if (!isHarborAfaPnpSupportOffered(activation)) {
@@ -110,15 +113,17 @@ export function useSessionCatalogSupports(input: {
 
       if (support === "spoken") {
         const segments = buildTextToSpeechSegments(input.textToSpeechTraversal.value);
-        void input.recordEvidence({
-          support,
-          state: segments.length > 0 ? "offered" : "unavailable",
-          activation,
-          reason: segments.length > 0 ? "renderer-tts-traversal" : "no-tts-segments",
-          dedupe: true,
-          segmentCount: segments.length,
-          language: input.textToSpeechTraversal.value?.language ?? null,
-        });
+        input
+          .recordEvidence({
+            support,
+            state: segments.length > 0 ? "offered" : "unavailable",
+            activation,
+            reason: segments.length > 0 ? "renderer-tts-traversal" : "no-tts-segments",
+            dedupe: true,
+            segmentCount: segments.length,
+            language: input.textToSpeechTraversal.value?.language ?? null,
+          })
+          .catch(reportUiError);
         continue;
       }
 
@@ -126,14 +131,16 @@ export function useSessionCatalogSupports(input: {
         support,
         support === "keyword-translation" ? selectedKeywordLanguage.value : null,
       );
-      void input.recordEvidence({
-        support,
-        state: entries.length > 0 ? "offered" : "unavailable",
-        activation,
-        entries,
-        reason: entries.length > 0 ? "catalog-support-resolved" : "catalog-support-missing",
-        dedupe: true,
-      });
+      input
+        .recordEvidence({
+          support,
+          state: entries.length > 0 ? "offered" : "unavailable",
+          activation,
+          entries,
+          reason: entries.length > 0 ? "catalog-support-resolved" : "catalog-support-missing",
+          dedupe: true,
+        })
+        .catch(reportUiError);
     }
   }
 

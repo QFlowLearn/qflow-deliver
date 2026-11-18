@@ -110,14 +110,11 @@ export function createAttemptClient(input: {
 
   function runSerially<TResult>(operation: () => Promise<TResult>): Promise<TResult> {
     const result = operationTail ? operationTail.then(operation, operation) : operation();
-    const nextTail = result.then(
-      () => undefined,
-      () => undefined,
-    );
-    operationTail = nextTail;
-    void nextTail.then(() => {
+    const clearTail = () => {
       if (operationTail === nextTail) operationTail = null;
-    });
+    };
+    const nextTail = result.then(clearTail, clearTail);
+    operationTail = nextTail;
     return result;
   }
 

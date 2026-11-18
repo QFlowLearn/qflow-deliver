@@ -531,7 +531,9 @@ async function waitForChildExit(children) {
 
         settled = true;
         await terminateChildren(children);
-        rejectPromise(error);
+        rejectPromise(
+          error instanceof Error ? error : new Error("Local service failed", { cause: error }),
+        );
       });
     }
   });

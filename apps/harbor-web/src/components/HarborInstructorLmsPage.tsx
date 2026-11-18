@@ -36,9 +36,7 @@ export default function HarborInstructorLmsPage() {
         ).length,
     );
 
-    onMounted(() => {
-      void refreshInstructorLmsIntegrations();
-    });
+    onMounted(refreshInstructorLmsIntegrations);
 
     return {
       agsReadyCount,

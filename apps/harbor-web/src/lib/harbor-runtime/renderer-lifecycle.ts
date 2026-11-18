@@ -16,19 +16,23 @@ interface RendererCaptureResult {
 }
 
 export interface RendererLifecycleRuntime {
-  buildRendererBuiltIns(): NonNullable<RendererConfiguration["builtIns"]>;
-  resetCaptureState(): void;
-  requestSuspendAttempt(): void;
-  requestEndAttempt(): void;
-  handleItemReady(): void;
-  handleSuspendAttemptCompleted(payload: unknown): void;
-  handleSnapshotAttemptCompleted(payload: unknown): void;
-  handleEndAttemptCompleted(payload: unknown): void;
-  handleScoreAttemptCompleted(payload: unknown): void;
-  handleRendererInteractionObserved(): void;
-  clearRendererPreflushTimer(): void;
-  captureLifecycleItemState(reason: string): Promise<void>;
-  captureCurrentItemState(command: RendererCaptureCommand, target: string): Promise<unknown>;
+  buildRendererBuiltIns(this: void): NonNullable<RendererConfiguration["builtIns"]>;
+  resetCaptureState(this: void): void;
+  requestSuspendAttempt(this: void): void;
+  requestEndAttempt(this: void): void;
+  handleItemReady(this: void): void;
+  handleSuspendAttemptCompleted(this: void, payload: unknown): void;
+  handleSnapshotAttemptCompleted(this: void, payload: unknown): void;
+  handleEndAttemptCompleted(this: void, payload: unknown): void;
+  handleScoreAttemptCompleted(this: void, payload: unknown): void;
+  handleRendererInteractionObserved(this: void): void;
+  clearRendererPreflushTimer(this: void): void;
+  captureLifecycleItemState(this: void, reason: string): Promise<void>;
+  captureCurrentItemState(
+    this: void,
+    command: RendererCaptureCommand,
+    target: string,
+  ): Promise<unknown>;
 }
 
 export function createRendererLifecycleRuntime(input: {
@@ -37,8 +41,8 @@ export function createRendererLifecycleRuntime(input: {
   currentItemId: ReadonlyRefLike<string | null>;
   runtimeManifest: RefLike<RuntimeManifestSummary | null>;
   capturedItemStates: RefLike<Record<string, unknown>>;
-  itemLifecycleState: RefLike<unknown | null>;
-  rendererRestoreState: RefLike<unknown | null>;
+  itemLifecycleState: RefLike<unknown>;
+  rendererRestoreState: RefLike<unknown>;
   replayStatus: RefLike<string>;
   errorMessage: RefLike<string>;
   writeCachedItemStates(attemptId: string, states: Record<string, unknown>): Promise<void>;
@@ -190,11 +194,11 @@ export function createRendererLifecycleRuntime(input: {
     const capture = captureTail
       ? captureTail.then(() => captureItemState(command, target))
       : captureItemState(command, target);
-    const tail = capture.catch(() => undefined);
-    captureTail = tail;
-    void tail.then(() => {
+    const clearTail = () => {
       if (captureTail === tail) captureTail = null;
-    });
+    };
+    const tail = capture.then(clearTail, clearTail);
+    captureTail = tail;
     return capture;
   }
 

@@ -748,7 +748,7 @@ describe("score amendments and rescoring", () => {
       exported.revisions
         .flatMap((revision) => revision.applications)
         .map((application) => application.responseEvidenceEventId)
-        .sort(),
+        .sort((left, right) => (left ?? "").localeCompare(right ?? "")),
     ).toEqual(["aev_choice_a_latest", "aev_choice_c_latest"]);
 
     const csvResponse = await getJson(

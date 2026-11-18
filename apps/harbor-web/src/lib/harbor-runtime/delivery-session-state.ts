@@ -21,13 +21,13 @@ import { projectTimingForDisplay } from "./timing";
 import { currentItemRequiresUnansweredResponse } from "./validation";
 import type { SubmissionState } from "../submission-state";
 
-export function createDeliverySessionState(input: { getLocationHref(): string }) {
+export function createDeliverySessionState(input: { getLocationHref(this: void): string }) {
   const bootstrappedSession = ref<BootstrappedSession | null>(null);
   const runtimeManifest = ref<RuntimeManifestSummary | null>(null);
   const currentItemPayload = ref<RuntimeItemPayload | null>(null);
   const authoritativeCurrentItemRef = ref<CurrentItemRef | null>(null);
-  const itemLifecycleState = ref<unknown | null>(null);
-  const rendererRestoreState = ref<unknown | null>(null);
+  const itemLifecycleState = ref<unknown>(null);
+  const rendererRestoreState = ref<unknown>(null);
   const capturedItemStates = ref<Record<string, unknown>>({});
   const attemptClient = ref<AttemptClient | null>(null);
   const itemReady = ref(false);

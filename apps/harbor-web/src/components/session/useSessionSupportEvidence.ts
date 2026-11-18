@@ -1,3 +1,4 @@
+import { reportUiError } from "@/lib/ui-errors";
 import type { Signal } from "@preact/signals";
 import type {
   HarborAfaPnpSupport,
@@ -67,7 +68,7 @@ export function useSessionSupportEvidence(input: {
     ].filter((entry) => isHarborAfaPnpSupportOffered(entry.activation));
 
     for (const support of supports) {
-      void recordAccommodationSupportEvidence({
+      recordAccommodationSupportEvidence({
         support: support.support,
         state,
         activation: support.activation,
@@ -75,7 +76,7 @@ export function useSessionSupportEvidence(input: {
         reason: options.reason,
         control: options.control,
         dedupe: options.dedupe,
-      });
+      }).catch(reportUiError);
     }
   }
 

@@ -271,15 +271,11 @@ export default function HarborInstructorAnalyticsPage(props: {
       () => reportExportCatalog.value?.dataDictionary.length ?? 0,
     );
 
-    onMounted(() => {
-      void refreshAnalytics();
-    });
+    onMounted(refreshAnalytics);
 
     watch(
       () => selectedInstructorAssignmentId.value,
-      () => {
-        void refreshAnalytics();
-      },
+      () => refreshAnalytics(),
     );
 
     async function refreshAnalytics(): Promise<void> {

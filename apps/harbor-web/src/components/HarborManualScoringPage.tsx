@@ -1,3 +1,4 @@
+import { reportUiError } from "@/lib/ui-errors";
 import { computed, onMounted, reactive, ref, useSetup, watch } from "@/lib/preact-reactivity";
 import { useHarborRuntime } from "@/lib/harbor-runtime";
 import type { RuntimeManualScoringAttempt } from "@/lib/runtime-session";
@@ -79,7 +80,7 @@ export default function HarborManualScoringPage() {
     );
 
     onMounted(() => {
-      void refreshManualScoringQueue({
+      return refreshManualScoringQueue({
         assignmentId: selectedInstructorAssignmentId.value || undefined,
       });
     });
@@ -282,7 +283,7 @@ export default function HarborManualScoringPage() {
                   class="manual-score-form"
                   onSubmit={(event) => {
                     event.preventDefault();
-                    void state.saveSelectedItem();
+                    state.saveSelectedItem().catch(reportUiError);
                   }}
                 >
                   <fieldset disabled={!state.selectedItem.value || manualScoringSaving.value}>

@@ -1,3 +1,4 @@
+import { reportUiError } from "@/lib/ui-errors";
 import type { Signal } from "@preact/signals";
 import {
   HARBOR_GLOSSARY_ON_SCREEN_SUPPORT,
@@ -68,14 +69,16 @@ export function useSessionGlossary(input: {
       referenceId: detail.reference.referenceId,
       remoteContent: projection.referencedFile ? { status: "loading" } : { status: "none" },
     };
-    void input.recordEvidence({
-      support: HARBOR_GLOSSARY_ON_SCREEN_SUPPORT,
-      state: projection.matches.length > 0 ? "opened" : "unavailable",
-      entries: evidenceEntries,
-      reason: projection.matches.length > 0 ? "candidate-request" : "catalog-support-missing",
-      control: "glossary-dialog",
-      dedupe: projection.matches.length === 0,
-    });
+    input
+      .recordEvidence({
+        support: HARBOR_GLOSSARY_ON_SCREEN_SUPPORT,
+        state: projection.matches.length > 0 ? "opened" : "unavailable",
+        entries: evidenceEntries,
+        reason: projection.matches.length > 0 ? "candidate-request" : "catalog-support-missing",
+        control: "glossary-dialog",
+        dedupe: projection.matches.length === 0,
+      })
+      .catch(reportUiError);
     if (!projection.referencedFile) return;
 
     const referencedFile = projection.referencedFile;
@@ -115,14 +118,16 @@ export function useSessionGlossary(input: {
 
   function dismissGlossary(): void {
     if (state.value.status === "open") {
-      void input.recordEvidence({
-        support: HARBOR_GLOSSARY_ON_SCREEN_SUPPORT,
-        state: "closed",
-        entries: resolveEvidenceEntries(state.value.referenceId),
-        reason: "candidate-close",
-        control: "glossary-dialog",
-        dedupe: false,
-      });
+      input
+        .recordEvidence({
+          support: HARBOR_GLOSSARY_ON_SCREEN_SUPPORT,
+          state: "closed",
+          entries: resolveEvidenceEntries(state.value.referenceId),
+          reason: "candidate-close",
+          control: "glossary-dialog",
+          dedupe: false,
+        })
+        .catch(reportUiError);
     }
     state.value = { status: "closed" };
     lifecycle.dismiss();

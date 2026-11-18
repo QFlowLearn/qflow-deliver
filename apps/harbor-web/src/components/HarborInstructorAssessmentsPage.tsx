@@ -1,3 +1,4 @@
+import { reportUiError } from "@/lib/ui-errors";
 import { assessmentManagementContext } from "@/lib/assessment-management-context";
 import { computed, onMounted, reactive, ref, useSetup, watch } from "@/lib/preact-reactivity";
 import type { HarborPage } from "@/App";
@@ -128,10 +129,12 @@ export default function HarborInstructorAssessmentsPage(_props: {
       return selectedPublishedVersion.value !== null;
     });
 
-    onMounted(() => {
-      void refreshInstructorAssignments();
-      void refreshInstructorPublishedAssessmentVersions();
-      void refreshInstructorSections();
+    onMounted(async () => {
+      await Promise.all([
+        refreshInstructorAssignments(),
+        refreshInstructorPublishedAssessmentVersions(),
+        refreshInstructorSections(),
+      ]);
     });
 
     watch(
@@ -197,7 +200,7 @@ export default function HarborInstructorAssessmentsPage(_props: {
 
     function openAssignment(assignmentId: string): void {
       editorOpen.value = true;
-      void selectInstructorAssignment(assignmentId);
+      selectInstructorAssignment(assignmentId).catch(reportUiError);
     }
 
     function closeEditor(): void {

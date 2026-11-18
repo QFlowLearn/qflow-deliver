@@ -1,3 +1,4 @@
+import { reportUiError } from "../ui-errors";
 import { recoverResponseStates } from "./response-recovery";
 import { isSubmissionEvent, recoverSubmissionState } from "../submission-state";
 import type {
@@ -147,8 +148,8 @@ export function createDeliverySessionBootstrapActions(ctx: DeliverySessionContex
 
     await actions.replayPendingWork("bootstrap");
     if (state.bootstrappedSession.value?.payload.attemptId !== session.payload.attemptId) return;
-    void refreshAssessmentHistory(session.payload.attemptId);
-    void input.refreshStudentAssignments();
+    refreshAssessmentHistory(session.payload.attemptId).catch(reportUiError);
+    Promise.resolve(input.refreshStudentAssignments()).catch(reportUiError);
   }
 
   async function ensureRuntimeContentLoaded(

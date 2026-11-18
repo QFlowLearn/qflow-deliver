@@ -48,7 +48,7 @@ export function createInstructorOperationsActions(input: {
     InstructorAssignmentActions,
     "refreshInstructorWorkspace" | "refreshInstructorSections"
   >;
-  formatError(error: unknown): string;
+  formatError(this: void, error: unknown): string;
 }) {
   const { state, assignmentActions, formatError } = input;
 

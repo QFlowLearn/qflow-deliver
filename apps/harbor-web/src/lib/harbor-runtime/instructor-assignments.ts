@@ -50,7 +50,7 @@ import type {
 export function createInstructorAssignmentActions(input: {
   state: InstructorWorkspaceState;
   dependencies: InstructorWorkspaceDependencies;
-  formatError(error: unknown): string;
+  formatError(this: void, error: unknown): string;
 }) {
   const { state, dependencies, formatError } = input;
 

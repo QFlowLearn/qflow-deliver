@@ -29,7 +29,7 @@ export async function verifyHmacSha256Base64Url(
 ): Promise<boolean> {
   try {
     const key = await importHmacSha256Key(secret);
-    return crypto.subtle.verify(
+    return await crypto.subtle.verify(
       "HMAC",
       key,
       toBufferSource(decodeBase64Url(encodedSignature)),
@@ -55,7 +55,7 @@ export async function verifyHmacSha256Hex(
 ): Promise<boolean> {
   try {
     const key = await importHmacSha256Key(secret);
-    return crypto.subtle.verify(
+    return await crypto.subtle.verify(
       "HMAC",
       key,
       toBufferSource(decodeHex(encodedSignature)),

@@ -63,13 +63,12 @@ async function resetDb(): Promise<void> {
 }
 
 function postJson(path: string, body: unknown, headers: HeadersInit = {}): Promise<Response> {
+  const requestHeaders = new Headers(headers);
+  if (!requestHeaders.has("content-type")) requestHeaders.set("content-type", "application/json");
   return workerExports.default.fetch(
     new Request(`https://harbor.local${path}`, {
       method: "POST",
-      headers: {
-        "content-type": "application/json",
-        ...headers,
-      },
+      headers: requestHeaders,
       body: JSON.stringify(body),
     }),
   );

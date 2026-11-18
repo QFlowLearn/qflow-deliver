@@ -1,3 +1,4 @@
+import { readMetricText } from "./metric-fixture";
 import { prepareQueueInbox } from "./native-queue-sink";
 import JSZip from "jszip";
 import {
@@ -283,9 +284,9 @@ function readMetricPoint(point: AnalyticsEngineDataPoint): {
   sequenceNumber: number;
 } {
   return {
-    route: String(point.blobs?.[0]),
-    family: String(point.blobs?.[1]),
-    outcome: String(point.blobs?.[3]),
+    route: readMetricText(point.blobs?.[0]),
+    family: readMetricText(point.blobs?.[1]),
+    outcome: readMetricText(point.blobs?.[3]),
     sequenceNumber: Number(point.doubles?.[1]),
   };
 }

@@ -74,7 +74,7 @@ function createHarness(
   const currentAttemptId = ref<string | null>("attempt-1");
   const currentItemId = ref<string | null>("item-1");
   const capturedItemStates = ref<Record<string, unknown>>({});
-  const itemLifecycleState = ref<unknown | null>(null);
+  const itemLifecycleState = ref<unknown>(null);
   const replayStatus = ref("");
   const errorMessage = ref("");
   const submissionLocked = ref(false);
@@ -90,7 +90,7 @@ function createHarness(
     runtimeManifest: ref(null),
     capturedItemStates,
     itemLifecycleState,
-    rendererRestoreState: ref<unknown | null>(null),
+    rendererRestoreState: ref<unknown>(null),
     replayStatus,
     errorMessage,
     async writeCachedItemStates(attemptId, states) {

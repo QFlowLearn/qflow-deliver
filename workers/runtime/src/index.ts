@@ -25,6 +25,7 @@ const app = createApp({
 export default {
   fetch: app.fetch,
   async queue(
+    this: void,
     batch: MessageBatch<SubmitFinalizationEnvelope | ResultExportEnvelope>,
     env: Env,
   ): Promise<void> {

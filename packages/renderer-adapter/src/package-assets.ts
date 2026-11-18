@@ -28,11 +28,11 @@ export function createPackageAssetResolvers(input: {
   };
 
   return {
-    resolveAsset(reference: string): string {
+    resolveAsset(this: void, reference: string): string {
       const resolved = resolveAssetRecord(reference);
       return resolved ? `${resolved.asset.url}${resolved.fragment}` : "";
     },
-    resolveStylesheet(stylesheet: QtiStylesheet) {
+    resolveStylesheet(this: void, stylesheet: QtiStylesheet) {
       if (stylesheet.type !== undefined && stylesheet.type.trim().toLowerCase() !== "text/css") {
         return undefined;
       }

@@ -17,42 +17,55 @@ export const ATTEMPT_RECOVERY_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
 
 export interface DeliverySessionInput {
   rendererLifecycle: MutableRef<RendererLifecycleRuntime>;
-  clearStudentSessionState(): void;
-  refreshStudentAssignments(): void | Promise<void>;
+  clearStudentSessionState(this: void): void;
+  refreshStudentAssignments(this: void): void | Promise<void>;
 }
 
 export interface DeliverySessionActions {
-  applyBootstrappedSession(session: BootstrappedSession): Promise<void>;
+  applyBootstrappedSession(this: void, session: BootstrappedSession): Promise<void>;
   applyPolicyProjection(
+    this: void,
     projection: Omit<AttemptPolicyReadResponse, "policy"> & {
       policy?: AttemptPolicyState;
     },
     statusMessage: string,
   ): Promise<void>;
-  buildReceiptStatusMessage(): string;
-  clearHistoryRefreshTimer(): void;
+  buildReceiptStatusMessage(this: void): string;
+  clearHistoryRefreshTimer(this: void): void;
   handleCommitResponse(
+    this: void,
     response: AttemptEventCommitResponse,
     options?: { readonly signal?: AbortSignal },
   ): Promise<void>;
-  ensureRuntimeContentLoaded(options?: { readonly signal?: AbortSignal }): Promise<void>;
-  maybeHandleDeadlineAutomation(): Promise<void>;
-  maybeProjectDeliveryContextError(error: unknown): void;
-  persistAuthoritativeSessionState(state: import("../attempt-client").AttemptClientState): void;
-  purgeExpiredRecoveryRecords(): Promise<void>;
+  ensureRuntimeContentLoaded(
+    this: void,
+    options?: { readonly signal?: AbortSignal },
+  ): Promise<void>;
+  maybeHandleDeadlineAutomation(this: void): Promise<void>;
+  maybeProjectDeliveryContextError(this: void, error: unknown): void;
+  persistAuthoritativeSessionState(
+    this: void,
+    state: import("../attempt-client").AttemptClientState,
+  ): void;
+  purgeExpiredRecoveryRecords(this: void): Promise<void>;
   recordCurrentItemPresented(
+    this: void,
     presentationSource: "bootstrap" | "resume" | "navigation" | "replay",
     options?: { readonly signal?: AbortSignal },
   ): Promise<void>;
   refreshAssessmentHistory(
+    this: void,
     attemptId?: string,
     options?: { readonly signal?: AbortSignal },
   ): Promise<void>;
-  replayPendingWork(reason: string): Promise<void>;
-  scheduleHistoryRefreshIfPending(attemptId: string): void;
-  startRecoveryHeartbeat(): void;
-  syncRecoveryState(): Promise<void>;
-  toAuthoritativeSessionState(session: BootstrappedSession): AuthoritativeAttemptSessionState;
+  replayPendingWork(this: void, reason: string): Promise<void>;
+  scheduleHistoryRefreshIfPending(this: void, attemptId: string): void;
+  startRecoveryHeartbeat(this: void): void;
+  syncRecoveryState(this: void): Promise<void>;
+  toAuthoritativeSessionState(
+    this: void,
+    session: BootstrappedSession,
+  ): AuthoritativeAttemptSessionState;
 }
 
 export interface DeliverySessionContext {
@@ -64,13 +77,13 @@ export interface DeliverySessionContext {
 
 export interface DeliverySessionLifecycle {
   recoveryCache: RuntimeRecoveryCache;
-  handleBrowserOnline(): void;
-  handleVisibilityChange(): void;
-  handlePageHide(): void;
-  handlePageFreeze(): void;
-  startTimingClock(): void;
-  stopTimingClock(): void;
-  stopRecoveryHeartbeat(): void;
-  clearHistoryRefreshTimer(): void;
-  maybeProjectDeliveryContextError(error: unknown): void;
+  handleBrowserOnline(this: void): void;
+  handleVisibilityChange(this: void): void;
+  handlePageHide(this: void): void;
+  handlePageFreeze(this: void): void;
+  startTimingClock(this: void): void;
+  stopTimingClock(this: void): void;
+  stopRecoveryHeartbeat(this: void): void;
+  clearHistoryRefreshTimer(this: void): void;
+  maybeProjectDeliveryContextError(this: void, error: unknown): void;
 }

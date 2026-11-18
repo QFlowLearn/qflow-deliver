@@ -1,3 +1,4 @@
+import { readMetricText } from "./metric-fixture";
 import JSZip from "jszip";
 import { applyD1Migrations, createExecutionContext, waitOnExecutionContext } from "cloudflare:test";
 import { env, exports as workerExports } from "cloudflare:workers";
@@ -281,14 +282,14 @@ function readMetricPoint(point: AnalyticsEngineDataPoint): {
   highestCommittedSequence: number;
 } {
   return {
-    attemptId: String(point.indexes?.[0]),
-    route: String(point.blobs?.[0]),
-    family: String(point.blobs?.[1]),
-    eventType: String(point.blobs?.[2]),
-    outcome: String(point.blobs?.[3]),
-    attemptStatus: String(point.blobs?.[4]),
-    graceWindow: String(point.blobs?.[5]),
-    actorRole: String(point.blobs?.[6]),
+    attemptId: readMetricText(point.indexes?.[0]),
+    route: readMetricText(point.blobs?.[0]),
+    family: readMetricText(point.blobs?.[1]),
+    eventType: readMetricText(point.blobs?.[2]),
+    outcome: readMetricText(point.blobs?.[3]),
+    attemptStatus: readMetricText(point.blobs?.[4]),
+    graceWindow: readMetricText(point.blobs?.[5]),
+    actorRole: readMetricText(point.blobs?.[6]),
     latencyMs: Number(point.doubles?.[0]),
     sequenceNumber: Number(point.doubles?.[1]),
     highestCommittedSequence: Number(point.doubles?.[2]),

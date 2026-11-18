@@ -45,7 +45,8 @@ export async function readReceipts(page: Page): Promise<unknown[]> {
     (attemptId) =>
       new Promise<unknown[]>((resolve, reject) => {
         const opened = indexedDB.open("harbor-attempt-recovery");
-        opened.onerror = () => reject(opened.error);
+        opened.onerror = () =>
+          reject(new Error("Could not open recovery receipts", { cause: opened.error }));
         opened.onsuccess = () => {
           const db = opened.result;
           const transaction = db.transaction("replay-receipts", "readonly");
@@ -56,9 +57,12 @@ export async function readReceipts(page: Page): Promise<unknown[]> {
           transaction.oncomplete = () => db.close();
           transaction.onabort = () => {
             db.close();
-            reject(transaction.error);
+            reject(
+              new Error("Recovery receipt transaction was aborted", { cause: transaction.error }),
+            );
           };
-          request.onerror = () => reject(request.error);
+          request.onerror = () =>
+            reject(new Error("Could not read recovery receipts", { cause: request.error }));
           request.onsuccess = () => {
             const records: unknown = request.result;
             if (!Array.isArray(records)) {

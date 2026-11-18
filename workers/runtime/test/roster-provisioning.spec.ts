@@ -465,7 +465,7 @@ describe("roster provisioning contracts", () => {
     const files = buildOneRosterFiles();
     const previewResponse = await postForm(
       "/api/instructor/provisioning/oneroster/preview",
-      await buildOneRosterZipForm(files),
+      buildOneRosterZipForm(files),
     );
     expect(previewResponse.status).toBe(200);
     const preview = await previewResponse.json<RosterCsvImportResponse>();
@@ -486,7 +486,7 @@ describe("roster provisioning contracts", () => {
 
     const applyResponse = await postForm(
       "/api/instructor/provisioning/oneroster/apply",
-      await buildOneRosterZipForm(files),
+      buildOneRosterZipForm(files),
     );
     expect(applyResponse.status).toBe(201);
     const applied = await applyResponse.json<RosterCsvImportResponse>();

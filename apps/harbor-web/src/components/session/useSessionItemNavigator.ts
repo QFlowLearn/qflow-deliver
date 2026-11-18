@@ -1,3 +1,4 @@
+import { reportUiError } from "@/lib/ui-errors";
 import type { Signal } from "@preact/signals";
 import { computed, nextTick, ref } from "@/lib/preact-reactivity";
 import type { RuntimeManifestSummary } from "@/lib/runtime-session";
@@ -115,7 +116,7 @@ export function useSessionItemNavigator(input: {
     if (entry.canNavigate) {
       clearItemNavigatorFeedback();
       input.stopTextToSpeech("item-navigation");
-      void input.navigateToItem(entry.itemId);
+      input.navigateToItem(entry.itemId).catch(reportUiError);
       return;
     }
 
@@ -127,23 +128,23 @@ export function useSessionItemNavigator(input: {
       case "ArrowRight":
       case "ArrowDown":
         event.preventDefault();
-        void moveItemStepFocus(entry.itemId, 1);
+        moveItemStepFocus(entry.itemId, 1).catch(reportUiError);
         return;
       case "ArrowLeft":
       case "ArrowUp":
         event.preventDefault();
-        void moveItemStepFocus(entry.itemId, -1);
+        moveItemStepFocus(entry.itemId, -1).catch(reportUiError);
         return;
       case "Home":
         event.preventDefault();
-        void focusItemStep(itemNavigationEntries.value[0]?.itemId ?? entry.itemId);
+        focusItemStep(itemNavigationEntries.value[0]?.itemId ?? entry.itemId).catch(reportUiError);
         return;
       case "End":
         event.preventDefault();
-        void focusItemStep(
+        focusItemStep(
           itemNavigationEntries.value[itemNavigationEntries.value.length - 1]?.itemId ??
             entry.itemId,
-        );
+        ).catch(reportUiError);
         return;
       default:
     }

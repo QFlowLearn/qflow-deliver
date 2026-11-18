@@ -1,3 +1,4 @@
+import { reportUiError } from "@/lib/ui-errors";
 import type { Signal } from "@preact/signals";
 import type { QtiRendererHost, RendererCatalogRequestEventDetail } from "@harbor/renderer-adapter";
 import { onBeforeUnmount, watch } from "@/lib/preact-reactivity";
@@ -27,7 +28,7 @@ export function useCatalogRequestDialog(input: {
         if (!input.acceptsRequest(detail)) return;
         cancelContentRequest();
         returnFocusElement = detail.returnFocusElement;
-        void input.openRequest(detail);
+        input.openRequest(detail).catch(reportUiError);
       });
     },
     { immediate: true },

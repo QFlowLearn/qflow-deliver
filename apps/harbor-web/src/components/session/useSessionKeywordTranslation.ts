@@ -1,3 +1,4 @@
+import { reportUiError } from "@/lib/ui-errors";
 import type { Signal } from "@preact/signals";
 import type { HarborRuntimeController } from "@/lib/harbor-runtime";
 import type { HarborCatalogSupportEntry } from "@harbor/attempt-protocol";
@@ -217,11 +218,13 @@ export function useSessionKeywordTranslation(input: {
   function dismissTranslation(): void {
     const current = state.value;
     if (current.status === "open") {
-      void recordTranslationEvidence("closed", current.delivery, { reason: "candidate-close" });
+      recordTranslationEvidence("closed", current.delivery, { reason: "candidate-close" }).catch(
+        reportUiError,
+      );
       if (current.remoteContent.status === "media") {
-        void recordTranslationEvidence("stopped", current.delivery, {
+        recordTranslationEvidence("stopped", current.delivery, {
           reason: "translation-dialog-closed",
-        });
+        }).catch(reportUiError);
       }
     }
     state.value = { status: "closed" };
@@ -231,9 +234,9 @@ export function useSessionKeywordTranslation(input: {
   function recordMediaState(stateName: "played" | "paused" | "stopped" | "finished"): void {
     const current = state.value;
     if (current.status !== "open") return;
-    void recordTranslationEvidence(stateName, current.delivery, {
+    recordTranslationEvidence(stateName, current.delivery, {
       reason: `translated-media-${stateName}`,
-    });
+    }).catch(reportUiError);
   }
 
   async function recordTranslationEvidence(

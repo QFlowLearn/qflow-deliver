@@ -1,3 +1,4 @@
+import { reportUiError } from "../ui-errors";
 import type { DeliverySessionState } from "./delivery-session-state";
 
 const HISTORY_REFRESH_INTERVAL_MS = 30_000;
@@ -35,7 +36,7 @@ export function createHistoryRefreshScheduler(
 
     state.historyRefreshTimer = setTimeout(() => {
       state.historyRefreshTimer = null;
-      void refreshAssessmentHistory(attemptId);
+      refreshAssessmentHistory(attemptId).catch(reportUiError);
     }, HISTORY_REFRESH_INTERVAL_MS);
   }
 

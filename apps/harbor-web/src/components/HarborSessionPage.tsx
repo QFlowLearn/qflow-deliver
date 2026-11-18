@@ -1,3 +1,4 @@
+import { reportUiError } from "@/lib/ui-errors";
 import { defineQtiRendererHost, resolveRendererColorTheme } from "@harbor/renderer-adapter";
 import type { HarborPage } from "@/App";
 import { useHarborRuntime } from "@/lib/harbor-runtime";
@@ -315,7 +316,7 @@ export default function HarborSessionPage(props: { navigateTo: (page: HarborPage
                     data-testid="previous-item-button"
                     onClick={() => {
                       state.stopTextToSpeech("previous-item");
-                      void navigateItem("previous");
+                      navigateItem("previous").catch(reportUiError);
                     }}
                   >
                     Previous
@@ -350,7 +351,7 @@ export default function HarborSessionPage(props: { navigateTo: (page: HarborPage
                   data-testid="next-item-button"
                   onClick={() => {
                     state.stopTextToSpeech("next-item");
-                    void navigateItem("next");
+                    navigateItem("next").catch(reportUiError);
                   }}
                 >
                   {runtimeManifest.value?.testSequence ? "Submit answer" : "Next"}

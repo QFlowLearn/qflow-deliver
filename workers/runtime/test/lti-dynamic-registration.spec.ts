@@ -77,7 +77,9 @@ describe("LTI dynamic registration", () => {
       completeRegistration(path, token),
       completeRegistration(path, token),
     ]);
-    expect(responses.map((response) => response.status).sort()).toEqual([200, 400]);
+    expect(
+      responses.map((response) => response.status).sort((left, right) => left - right),
+    ).toEqual([200, 400]);
     const expired = responses.find((response) => response.status === 400);
     await expect(expired?.json()).resolves.toEqual({
       error: "Registration session is invalid or expired",

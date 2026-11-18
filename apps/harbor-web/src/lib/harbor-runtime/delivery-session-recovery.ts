@@ -1,3 +1,4 @@
+import { reportUiError } from "../ui-errors";
 import type { AuthoritativeAttemptSessionState } from "@harbor/attempt-protocol";
 import type { AttemptClient } from "../attempt-client";
 import { createEmptyAttemptPolicyState } from "@harbor/attempt-protocol";
@@ -283,31 +284,35 @@ export function createDeliverySessionRecoveryActions(ctx: DeliverySessionContext
   }
 
   function handleBrowserOnline(): void {
-    void replayPendingWork("connectivity return");
+    replayPendingWork("connectivity return").catch(reportUiError);
   }
 
   function handleVisibilityChange(): void {
     if (document.visibilityState === "hidden") {
-      void requireRendererLifecycle(input.rendererLifecycle).captureLifecycleItemState(
-        "visibilitychange",
-      );
+      requireRendererLifecycle(input.rendererLifecycle)
+        .captureLifecycleItemState("visibilitychange")
+        .catch(reportUiError);
     }
   }
 
   function handlePageHide(): void {
     state.recoveryCache.markRecoverySessionClosed();
-    void requireRendererLifecycle(input.rendererLifecycle).captureLifecycleItemState("pagehide");
+    requireRendererLifecycle(input.rendererLifecycle)
+      .captureLifecycleItemState("pagehide")
+      .catch(reportUiError);
   }
 
   function handlePageFreeze(): void {
-    void requireRendererLifecycle(input.rendererLifecycle).captureLifecycleItemState("freeze");
+    requireRendererLifecycle(input.rendererLifecycle)
+      .captureLifecycleItemState("freeze")
+      .catch(reportUiError);
   }
 
   function startTimingClock(): void {
     stopTimingClock();
     state.timingClockTimer = setInterval(() => {
       state.timingClockTickMs.value = Date.now();
-      void actions.maybeHandleDeadlineAutomation();
+      actions.maybeHandleDeadlineAutomation().catch(reportUiError);
     }, TIMING_CLOCK_INTERVAL_MS);
   }
 

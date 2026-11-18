@@ -129,7 +129,7 @@ async function readAttemptRecoverySnapshot(
         const storeNames = [...db.objectStoreNames];
         const transaction = db.transaction(storeNames, "readonly");
         const readStoreRecord = (storeName: string) =>
-          new Promise<unknown | null>((resolveRecord, rejectRecord) => {
+          new Promise<unknown>((resolveRecord, rejectRecord) => {
             if (!storeNames.includes(storeName)) {
               resolveRecord(null);
               return;
@@ -184,16 +184,26 @@ async function readAttemptRecoverySnapshot(
               type: entry.event?.type ?? "unknown",
               queuedAt: entry.queuedAt ?? "",
             })),
-            receipts: (receipts as Array<Record<string, unknown>>).map((receipt) => ({
-              eventId: String(receipt.eventId ?? ""),
-              idempotencyKey: String(receipt.idempotencyKey ?? ""),
-              sequenceNumber:
-                typeof receipt.sequenceNumber === "number" ? receipt.sequenceNumber : 0,
-              eventType: String(receipt.eventType ?? ""),
-              outcome: String(receipt.outcome ?? ""),
-              receiptId: typeof receipt.receiptId === "string" ? receipt.receiptId : null,
-              confirmedAt: String(receipt.confirmedAt ?? ""),
-            })),
+            receipts: (receipts as Array<Record<string, unknown>>).map((receipt) => {
+              if (
+                typeof receipt.eventId !== "string" ||
+                typeof receipt.idempotencyKey !== "string" ||
+                typeof receipt.eventType !== "string" ||
+                typeof receipt.outcome !== "string" ||
+                typeof receipt.confirmedAt !== "string"
+              )
+                throw new Error("Invalid persisted replay receipt");
+              return {
+                eventId: receipt.eventId,
+                idempotencyKey: receipt.idempotencyKey,
+                sequenceNumber:
+                  typeof receipt.sequenceNumber === "number" ? receipt.sequenceNumber : 0,
+                eventType: receipt.eventType,
+                outcome: receipt.outcome,
+                receiptId: typeof receipt.receiptId === "string" ? receipt.receiptId : null,
+                confirmedAt: receipt.confirmedAt,
+              };
+            }),
             metadata: (metadata as Record<string, unknown> | null) ?? null,
             itemStateKeys: Object.keys(stateRecord?.itemStates ?? {}),
           });

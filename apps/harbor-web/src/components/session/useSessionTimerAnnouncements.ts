@@ -1,3 +1,4 @@
+import { reportUiError } from "@/lib/ui-errors";
 import type { Signal } from "@preact/signals";
 import { computed, nextTick, ref, watch } from "@/lib/preact-reactivity";
 import {
@@ -68,7 +69,7 @@ export function useSessionTimerAnnouncements(input: {
         return;
       }
 
-      void announceTimerMilestone(announcement.message, announcement.urgency);
+      announceTimerMilestone(announcement.message, announcement.urgency).catch(reportUiError);
     },
   );
 

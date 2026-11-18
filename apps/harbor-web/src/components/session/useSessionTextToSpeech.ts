@@ -1,3 +1,4 @@
+import { reportUiError } from "@/lib/ui-errors";
 import type { Signal } from "@preact/signals";
 import type { QtiRendererHost, RendererTextToSpeechTraversal } from "@harbor/renderer-adapter";
 import type {
@@ -57,13 +58,15 @@ export function useSessionTextToSpeech(input: {
   function start(): void {
     if (!isTextToSpeechSupported()) {
       playbackState.value = "unsupported";
-      void input.recordEvidence({
-        support: "spoken",
-        state: "unavailable",
-        activation: input.activation.value,
-        reason: "speech-synthesis-unavailable",
-        dedupe: true,
-      });
+      input
+        .recordEvidence({
+          support: "spoken",
+          state: "unavailable",
+          activation: input.activation.value,
+          reason: "speech-synthesis-unavailable",
+          dedupe: true,
+        })
+        .catch(reportUiError);
       return;
     }
 
@@ -84,13 +87,15 @@ export function useSessionTextToSpeech(input: {
 
     if (activeSegments.length === 0) {
       playbackState.value = "unsupported";
-      void input.recordEvidence({
-        support: "spoken",
-        state: "unavailable",
-        activation: input.activation.value,
-        reason: "no-readable-segments",
-        dedupe: true,
-      });
+      input
+        .recordEvidence({
+          support: "spoken",
+          state: "unavailable",
+          activation: input.activation.value,
+          reason: "no-readable-segments",
+          dedupe: true,
+        })
+        .catch(reportUiError);
       return;
     }
 
@@ -100,18 +105,20 @@ export function useSessionTextToSpeech(input: {
     currentSegmentOrdinal.value = 1;
     currentSegmentText.value = activeSegments[0]?.text ?? "";
     playbackState.value = "playing";
-    void input.recordEvidence({
-      support: "spoken",
-      state: "activated",
-      activation: input.activation.value,
-      reason: "candidate-started",
-      control: "start",
-      dedupe: false,
-      details: {
-        segmentCount: activeSegments.length,
-        ssmlSubstitutionsApplied: activeSegments.some((segment) => segment.ssmlApplied),
-      },
-    });
+    input
+      .recordEvidence({
+        support: "spoken",
+        state: "activated",
+        activation: input.activation.value,
+        reason: "candidate-started",
+        control: "start",
+        dedupe: false,
+        details: {
+          segmentCount: activeSegments.length,
+          ssmlSubstitutionsApplied: activeSegments.some((segment) => segment.ssmlApplied),
+        },
+      })
+      .catch(reportUiError);
     speakSegment(playbackGeneration);
   }
 
@@ -122,18 +129,20 @@ export function useSessionTextToSpeech(input: {
 
     window.speechSynthesis.pause();
     playbackState.value = "paused";
-    void input.recordEvidence({
-      support: "spoken",
-      state: "paused",
-      activation: input.activation.value,
-      reason: "candidate-paused",
-      control: "pause",
-      dedupe: false,
-      details: {
-        segmentOrdinal: currentSegmentOrdinal.value,
-        segmentCount: segmentCount.value,
-      },
-    });
+    input
+      .recordEvidence({
+        support: "spoken",
+        state: "paused",
+        activation: input.activation.value,
+        reason: "candidate-paused",
+        control: "pause",
+        dedupe: false,
+        details: {
+          segmentOrdinal: currentSegmentOrdinal.value,
+          segmentCount: segmentCount.value,
+        },
+      })
+      .catch(reportUiError);
   }
 
   function resume(): void {
@@ -143,18 +152,20 @@ export function useSessionTextToSpeech(input: {
 
     window.speechSynthesis.resume();
     playbackState.value = "playing";
-    void input.recordEvidence({
-      support: "spoken",
-      state: "resumed",
-      activation: input.activation.value,
-      reason: "candidate-resumed",
-      control: "resume",
-      dedupe: false,
-      details: {
-        segmentOrdinal: currentSegmentOrdinal.value,
-        segmentCount: segmentCount.value,
-      },
-    });
+    input
+      .recordEvidence({
+        support: "spoken",
+        state: "resumed",
+        activation: input.activation.value,
+        reason: "candidate-resumed",
+        control: "resume",
+        dedupe: false,
+        details: {
+          segmentOrdinal: currentSegmentOrdinal.value,
+          segmentCount: segmentCount.value,
+        },
+      })
+      .catch(reportUiError);
   }
 
   function stop(reason = "candidate-stopped", options: { record?: boolean } = {}): void {
@@ -172,14 +183,16 @@ export function useSessionTextToSpeech(input: {
     }
     resetPlayback();
     if (wasActive && options.record !== false) {
-      void input.recordEvidence({
-        support: "spoken",
-        state: "stopped",
-        activation: input.activation.value,
-        reason,
-        control: "stop",
-        dedupe: false,
-      });
+      input
+        .recordEvidence({
+          support: "spoken",
+          state: "stopped",
+          activation: input.activation.value,
+          reason,
+          control: "stop",
+          dedupe: false,
+        })
+        .catch(reportUiError);
     }
   }
 
@@ -228,13 +241,15 @@ export function useSessionTextToSpeech(input: {
     }
 
     resetPlayback();
-    void input.recordEvidence({
-      support: "spoken",
-      state: "finished",
-      activation: input.activation.value,
-      reason: "segment-playback-ended",
-      dedupe: false,
-    });
+    input
+      .recordEvidence({
+        support: "spoken",
+        state: "finished",
+        activation: input.activation.value,
+        reason: "segment-playback-ended",
+        dedupe: false,
+      })
+      .catch(reportUiError);
   }
 
   function resetPlayback(): void {

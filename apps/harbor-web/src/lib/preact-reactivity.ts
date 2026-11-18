@@ -1,3 +1,4 @@
+import { reportUiError } from "./ui-errors";
 import { computed as computedSignal, effect, signal, type Signal } from "@preact/signals";
 import { useEffect, useMemo } from "preact/hooks";
 
@@ -116,7 +117,7 @@ export function useSetup<T>(factory: () => T): T {
     for (const callback of setup[setupLifecycleVersion].mountedCallbacks) {
       queueMicrotask(() => {
         if (active) {
-          void callback();
+          Promise.resolve(callback()).catch(reportUiError);
         }
       });
     }
@@ -152,7 +153,7 @@ function scheduleWatchCallback<T>(
   previous: T | undefined,
 ): void {
   queueMicrotask(() => {
-    void callback(value, previous);
+    Promise.resolve(callback(value, previous)).catch(reportUiError);
   });
 }
 

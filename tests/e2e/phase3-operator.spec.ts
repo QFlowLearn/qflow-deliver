@@ -59,13 +59,17 @@ async function postPolicyCommand(input: {
   attemptId: string;
   body: unknown;
 }): Promise<void> {
+  const commandId =
+    input.body && typeof input.body === "object"
+      ? (input.body as Record<string, unknown>).commandId
+      : undefined;
   const data =
     input.body && typeof input.body === "object" && !Array.isArray(input.body)
       ? {
           ...(input.body as Record<string, unknown>),
-          ...(typeof (input.body as Record<string, unknown>).commandId === "string"
+          ...(typeof commandId === "string"
             ? {
-                commandId: `${(input.body as Record<string, unknown>).commandId}_${input.attemptId}`,
+                commandId: `${commandId}_${input.attemptId}`,
               }
             : {}),
         }

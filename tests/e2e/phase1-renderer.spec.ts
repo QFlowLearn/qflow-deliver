@@ -81,7 +81,11 @@ test("persists one resumable renderer checkpoint and restores it after reload", 
 }, testInfo) => {
   const itemStateWriteCountKey = "harbor.e2e.itemStateWriteCount";
   await page.addInitScript((storageKey) => {
-    const originalPut = IDBObjectStore.prototype.put;
+    const descriptor = Object.getOwnPropertyDescriptor(IDBObjectStore.prototype, "put");
+    if (!descriptor || typeof descriptor.value !== "function")
+      throw new Error("IndexedDB put is unavailable");
+    // SAFETY: this native descriptor is callable and is invoked below with its actual object-store receiver.
+    const originalPut = descriptor.value as IDBObjectStore["put"];
     Object.defineProperty(IDBObjectStore.prototype, "put", {
       configurable: true,
       writable: true,
@@ -139,4 +143,24 @@ test("persists one resumable renderer checkpoint and restores it after reload", 
 
   await expect(page.getByTestId("attempt-id")).toHaveText(initialAttemptId ?? "");
   await expect(answer).toBeChecked();
+});
+
+test("reports a rejected UI task through the browser error channel", async ({ page }) => {
+  await page.goto("/");
+  const reported = page.waitForEvent("pageerror");
+  await page.evaluate(async () => {
+    const moduleUrl = "/src/lib/ui-errors.ts";
+    const uiModule: unknown = await import(moduleUrl);
+    if (
+      !uiModule ||
+      typeof uiModule !== "object" ||
+      !("reportUiError" in uiModule) ||
+      typeof uiModule.reportUiError !== "function"
+    )
+      throw new Error("UI error reporter is unavailable");
+    await Promise.reject(new Error("Unexpected UI task failure")).catch((error: unknown) => {
+      uiModule.reportUiError(error);
+    });
+  });
+  expect((await reported).message).toBe("Unexpected UI task failure");
 });
