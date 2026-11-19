@@ -69,7 +69,7 @@ To follow a response through the code, start with the [browser journal](apps/har
 
 ## Run locally
 
-Install Node 26.12.0 and pnpm 12.21.0. Then run:
+Install Node 26.13.1 and pnpm 12.21.0. Then run:
 
 ```sh
 pnpm install --frozen-lockfile

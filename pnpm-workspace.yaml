@@ -12,17 +12,17 @@ allowBuilds:
 
 minimumReleaseAgeExclude:
   # Explicitly requested tsrs type-aware lint trial.
-  - "tsrs@0.25.0-ts7.1.0-beta"
-  - "@tsrs/darwin-arm64@0.25.0-ts7.1.0-beta"
-  - "@tsrs/darwin-x64@0.25.0-ts7.1.0-beta"
-  - "@tsrs/linux-arm64-gnu@0.25.0-ts7.1.0-beta"
-  - "@tsrs/linux-arm64-musl@0.25.0-ts7.1.0-beta"
-  - "@tsrs/linux-x64-gnu@0.25.0-ts7.1.0-beta"
-  - "@tsrs/linux-x64-musl@0.25.0-ts7.1.0-beta"
-  - "@tsrs/win32-arm64@0.25.0-ts7.1.0-beta"
-  - "@tsrs/win32-x64@0.25.0-ts7.1.0-beta"
-  # Explicitly requested trial of the first Landmines release.
-  - "@interfere/landmines@0.1.0"
+  - "tsrs@7.1.0-beta.tsrs3"
+  - "@tsrs/darwin-arm64@7.1.0-beta.tsrs3"
+  - "@tsrs/darwin-x64@7.1.0-beta.tsrs3"
+  - "@tsrs/linux-arm64-gnu@7.1.0-beta.tsrs3"
+  - "@tsrs/linux-arm64-musl@7.1.0-beta.tsrs3"
+  - "@tsrs/linux-x64-gnu@7.1.0-beta.tsrs3"
+  - "@tsrs/linux-x64-musl@7.1.0-beta.tsrs3"
+  - "@tsrs/win32-arm64@7.1.0-beta.tsrs3"
+  - "@tsrs/win32-x64@7.1.0-beta.tsrs3"
+  # Reviewed Landmines rule trial.
+  - "@interfere/landmines@0.1.1"
   - "msw@3.0.7"
   - "@msw/url@0.1.3"
   - "@longsightgroup/lti-tool"
@@ -40,6 +40,15 @@ minimumReleaseAgeExclude:
   - miniflare
   - workerd
   - "@cloudflare/workerd-*"
+
+  # Required packages of the coordinated Cloudflare RC2 release.
+  - "@cloudflare/kv-asset-handler@0.5.1"
+  - "@cloudflare/workers-utils@0.55.0"
+
+  # Current Vitest patch cohort.
+  - "vitest@5.1.1"
+  - "@vitest/mocker@5.1.1"
+  - "@vitest/spy@5.1.1"
 
   # Exact current tooling releases reviewed for this upgrade.
   - "@oxfmt/binding-android-arm-eabi@0.79.0"
@@ -87,11 +96,9 @@ minimumReleaseAgeExclude:
   - "playwright-core@1.65.1"
   - "playwright@1.65.1"
   - "vite@8.3.8"
-  - "wrangler@4.164.0"
+  - "wrangler@4.165.0"
 
 overrides:
   hono: 4.13.16
   fflate: 0.8.3
-  source-map-js: 1.2.2
   "zod@>=4 <5": 4.6.6
-  tinypool: 2.1.2
